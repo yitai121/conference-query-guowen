@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>参会人员管理系统 - 国文汇通</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #050510;
+            --bg-card: rgba(15, 20, 40, 0.7);
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 215, 0, 0.15);
+            --gold-primary: #FFD700;
+            --gold-light: #FFE55C;
+            --gold-dark: #B8860B;
+            --blue-accent: #1E3A5F;
+            --blue-light: #2D5A8F;
+            --text-primary: #FFFFFF;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --text-muted: rgba(255, 255, 255, 0.4);
+            --success-green: #00E676;
+            --error-red: #FF5252;
+            --warning-orange: #FF9800;
+            --info-cyan: #00BCD4;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { height: 100%; will-change: transform; -webkit-font-smoothing: antialiased; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        .bg-gradient {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(30, 58, 95, 0.4) 0%, transparent 50%), radial-gradient(ellipse 60% 40% at 80% 100%, rgba(255, 215, 0, 0.08) 0%, transparent 40%), var(--bg-dark);
+            z-index: 0;
+        }
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            background-image: linear-gradient(rgba(255, 215, 0, 0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 215, 0, 0.02) 1px, transparent 1px);
+            background-size: 60px 60px;
+            z-index: 0;
+        }
+        .login-container {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            background: var(--bg-dark);
+        }
+        .login-container.hidden { display: none; }
+        .login-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(30px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 48px;
+            width: 100%;
+            max-width: 420px;
+            position: relative;
+            animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 60px rgba(255, 215, 0, 0.1);
+        }
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 24px;
+            right: 24px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--gold-primary), transparent);
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .login-icon {
+            width: 72px;
+            height: 72px;
+            margin: 0 auto 24px;
+            background: linear-gradient(135deg, var(--gold-primary), var(--gold-dark));
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            box-shadow: 0 8px 32px rgba(255, 215, 0, 0.3);
+        }
+        .login-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 8px;
+            color: var(--gold-primary);
+            letter-spacing: 2px;
+        }
+        .login-subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            margin-bottom: 32px;
+            font-size: 14px;
+        }
+        .input-group { margin-bottom: 20px; }
+        .input-label {
+            display: block;
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+        .input-field {
+            width: 100%;
+            padding: 16px 20px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+        .input-field:focus {
+            outline: none;
+            border-color: var(--gold-primary);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+        }
+        .input-field::placeholder { color: var(--text-muted); }
+        .login-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--gold-primary), var(--gold-dark));
+            border: none;
+            border-radius: 12px;
+            color: var(--bg-dark);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(255, 215, 0, 0.3);
+        }
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(255, 215, 0, 0.4);
+        }
+        .login-btn:active { transform: translateY(0); }
+        .error-msg {
+            background: rgba(255, 82, 82, 0.1);
+            border: 1px solid var(--error-red);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 20px;
+            color: var(--error-red);
+            font-size: 14px;
+            display: none;
+        }
+        .error-msg.show { display: block; }
+        .app-container {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 16px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--gold-primary);
+            letter-spacing: 1px;
+        }
+        .header-user {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--gold-primary), var(--gold-dark));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--bg-dark);
+        }
+        .user-name {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        .logout-btn {
+            padding: 8px 16px;
+            background: transparent;
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .logout-btn:hover {
+            border-color: var(--error-red);
+            color: var(--error-red);
+        }
+        .sidebar {
+            width: 240px;
+            background: var(--bg-card);
+            border-right: 1px solid var(--glass-border);
+            padding: 24px 0;
+            flex-shrink: 0;
+        }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 24px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+        .nav-item:hover {
+            background: var(--glass-bg);
+            color: var(--text-primary);
+        }
+        .nav-item.active {
+            background: linear-gradient(90deg, rgba(255, 215, 0, 0.1), transparent);
+            color: var(--gold-primary);
+            border-left-color: var(--gold-primary);
+        }
+        .nav-icon {
+            font-size: 18px;
+            width: 24px;
+            text-align: center;
+        }
+        .main-content {
+            flex: 1;
+            padding: 24px 32px;
+        }
+        .page-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            color: var(--gold-primary);
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+        }
+        .stat-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--gold-primary);
+            margin-bottom: 8px;
+        }
+        .stat-label {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+        .stat-card.success .stat-value { color: var(--success-green); }
+        .stat-card.warning .stat-value { color: var(--warning-orange); }
+        .stat-card.info .stat-value { color: var(--info-cyan); }
+        .action-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+        .action-btn {
+            padding: 10px 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .action-btn:hover {
+            background: var(--glass-bg);
+            border-color: var(--gold-primary);
+        }
+        .action-btn.primary {
+            background: linear-gradient(135deg, var(--gold-primary), var(--gold-dark));
+            border: none;
+            color: var(--bg-dark);
+            font-weight: 600;
+        }
+        .action-btn.danger {
+            border-color: var(--error-red);
+            color: var(--error-red);
+        }
+        .search-box { flex: 1; max-width: 300px; }
+        .search-input {
+            width: 100%;
+            padding: 10px 16px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+        .search-input:focus {
+            outline: none;
+            border-color: var(--gold-primary);
+        }
+        .data-table {
+            width: 100%;
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        .table-header {
+            display: grid;
+            grid-template-columns: 2fr 2fr 2fr 1fr 1fr 1fr;
+            padding: 16px 20px;
+            background: var(--glass-bg);
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .table-body {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        .table-row {
+            display: grid;
+            grid-template-columns: 2fr 2fr 2fr 1fr 1fr 1fr;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--glass-border);
+            font-size: 14px;
+            align-items: center;
+            transition: background 0.3s ease;
+        }
+        .table-row:last-child { border-bottom: none; }
+        .table-row:hover { background: var(--glass-bg); }
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .status-approved { background: rgba(0, 230, 118, 0.15); color: var(--success-green); }
+        .status-rejected { background: rgba(255, 82, 82, 0.15); color: var(--error-red); }
+        .status-pending { background: rgba(255, 152, 0, 0.15); color: var(--warning-orange); }
+        .action-group {
+            display: flex;
+            gap: 8px;
+        }
+        .icon-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: 1px solid var(--glass-border);
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .icon-btn:hover {
+            background: var(--glass-bg);
+            color: var(--text-primary);
+        }
+        .icon-btn.danger:hover {
+            background: rgba(255, 82, 82, 0.15);
+            border-color: var(--error-red);
+            color: var(--error-red);
+        }
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+        }
+        .modal-overlay.show { display: flex; }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .modal {
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 32px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        .modal-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--gold-primary);
+        }
+        .modal-close {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 1px solid var(--glass-border);
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .modal-close:hover {
+            background: var(--glass-bg);
+            color: var(--text-primary);
+        }
+        .form-group { margin-bottom: 20px; }
+        .form-label {
+            display: block;
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: var(--gold-primary);
+        }
+        .form-select {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .modal-footer {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+        .modal-footer .btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid var(--glass-border);
+            color: var(--text-secondary);
+        }
+        .btn-secondary:hover {
+            background: var(--glass-bg);
+            color: var(--text-primary);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--gold-primary), var(--gold-dark));
+            border: none;
+            color: var(--bg-dark);
+            font-weight: 600;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(255, 215, 0, 0.3);
+        }
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 3000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .toast {
+            padding: 16px 24px;
+            border-radius: 12px;
+            font-size: 14px;
+            animation: slideInRight 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(100px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .toast.success { background: var(--success-green); color: var(--bg-dark); }
+        .toast.error { background: var(--error-red); color: white; }
+        .toast.warning { background: var(--warning-orange); color: var(--bg-dark); }
+        .toast.info { background: var(--info-cyan); color: var(--bg-dark); }
+        .confirm-modal { text-align: center; }
+        .confirm-icon { font-size: 48px; margin-bottom: 16px; }
+        .confirm-message {
+            font-size: 16px;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+        .empty-icon { font-size: 64px; margin-bottom: 16px; }
+        .hidden { display: none !important; }
+        .page { display: none; }
+        .page.active { display: block; }
+    </style>
+</head>
+<body>
+    <div class="bg-gradient"></div>
+    <div class="bg-grid"></div>
+    <div class="login-container" id="loginContainer">
+        <div class="login-card">
+            <div class="login-icon">🔐</div>
+            <h1 class="login-title">ADMIN</h1>
+            <p class="login-subtitle">参会人员管理系统</p>
+            <div class="error-msg" id="errorMsg"></div>
+            <div class="input-group">
+                <label class="input-label">管理员账号</label>
+                <input type="text" class="input-field" id="loginUsername" placeholder="请输入账号" value="admin">
+            </div>
+            <div class="input-group">
+                <label class="input-label">密码</label>
+                <input type="password" class="input-field" id="loginPassword" placeholder="请输入密码" value="admin123">
+            </div>
+            <button class="login-btn" onclick="performLogin()">登 录</button>
+        </div>
+    </div>
+    <div class="app-container" id="appContainer">
+        <header class="header">
+            <div class="header-title">参会人员管理系统</div>
+            <div class="header-user">
+                <div class="user-avatar">A</div>
+                <span class="user-name">管理员</span>
+                <button class="logout-btn" onclick="logout()">退出</button>
+            </div>
+        </header>
+        <div class="sidebar">
+            <div class="nav-item active" data-page="attendees"><span class="nav-icon">👥</span><span>人员管理</span></div>
+            <div class="nav-item" data-page="import"><span class="nav-icon">📥</span><span>导入导出</span></div>
+            <div class="nav-item" data-page="settings"><span class="nav-icon">⚙️</span><span>系统设置</span></div>
+            <div class="nav-item" data-page="logs"><span class="nav-icon">📋</span><span>操作日志</span></div>
+            <div class="nav-item" data-page="password"><span class="nav-icon">🔑</span><span>修改密码</span></div>
+        </div>
+        <main class="main-content">
+            <div class="page active" id="page-attendees">
+                <h2 class="page-title">人员管理</h2>
+                <div class="stats-grid" id="statsGrid">
+                    <div class="stat-card"><div class="stat-value" id="statTotal">0</div><div class="stat-label">总人数</div></div>
+                    <div class="stat-card success"><div class="stat-value" id="statActive">0</div><div class="stat-label">启用</div></div>
+                    <div class="stat-card warning"><div class="stat-value" id="statPending">0</div><div class="stat-label">待审核</div></div>
+                    <div class="stat-card info"><div class="stat-value" id="statApproved">0</div><div class="stat-label">已通过</div></div>
+                </div>
+                <div class="action-bar">
+                    <button class="action-btn primary" onclick="openAddModal()"><span>➕</span> 添加人员</button>
+                    <div class="search-box">
+                        <input type="text" class="search-input" id="searchInput" placeholder="搜索姓名、手机号或邮箱..." oninput="filterAttendees()">
+                    </div>
+                </div>
+                <div class="data-table">
+                    <div class="table-header"><div>姓名</div><div>手机号</div><div>邮箱</div><div>状态</div><div>审核</div><div>操作</div></div>
+                    <div class="table-body" id="tableBody"><div class="empty-state"><div class="empty-icon">📋</div><p>暂无人员数据</p></div></div>
+                </div>
+            </div>
+            <div class="page" id="page-import">
+                <h2 class="page-title">导入导出</h2>
+                <div class="action-bar">
+                    <button class="action-btn" onclick="exportJSON()"><span>📄</span> 导出JSON</button>
+                    <button class="action-btn" onclick="exportCSV()"><span>📊</span> 导出CSV</button>
+                    <button class="action-btn" onclick="exportBackup()"><span>💾</span> 导出备份</button>
+                </div>
+                <div class="data-table">
+                    <div class="table-header" style="grid-template-columns: 1fr;"><div>导入数据</div></div>
+                    <div style="padding: 20px;">
+                        <div class="form-group">
+                            <label class="form-label">导入方式</label>
+                            <select class="form-select" id="importType"><option value="json-text">粘贴JSON文本</option></select>
+                        </div>
+                        <div id="jsonTextArea" class="form-group">
+                            <label class="form-label">JSON数据</label>
+                            <textarea class="form-input" id="jsonInput" rows="10" placeholder='[{"name":"张三","phone":"13800138000","email":"zhangsan@example.com"},...]'></textarea>
+                        </div>
+                        <div style="display: flex; gap: 12px;">
+                            <button class="action-btn primary" onclick="importData()"><span>📥</span> 开始导入</button>
+                            <button class="action-btn danger" onclick="clearImportData()"><span>🗑️</span> 清空数据</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="page" id="page-settings">
+                <h2 class="page-title">系统设置</h2>
+                <div class="data-table">
+                    <div class="table-header" style="grid-template-columns: 1fr;"><div>基础配置</div></div>
+                    <div style="padding: 20px;">
+                        <div class="form-group"><label class="form-label">会议名称</label><input type="text" class="form-input" id="configName"></div>
+                        <div class="form-group"><label class="form-label">会议时间</label><input type="text" class="form-input" id="configTime"></div>
+                        <div class="form-group"><label class="form-label">会议地点</label><input type="text" class="form-input" id="configLocation"></div>
+                        <div class="form-group"><label class="form-label">页面标题</label><input type="text" class="form-input" id="configTitle"></div>
+                        <div class="form-group"><label class="form-label">页脚文字</label><input type="text" class="form-input" id="configFooter"></div>
+                        <button class="action-btn primary" onclick="saveSettings()"><span>💾</span> 保存设置</button>
+                    </div>
+                </div>
+            </div>
+            <div class="page" id="page-logs">
+                <h2 class="page-title">操作日志</h2>
+                <div class="action-bar"><button class="action-btn danger" onclick="clearLogs()"><span>🗑️</span> 清空日志</button></div>
+                <div class="data-table">
+                    <div class="table-header" style="grid-template-columns: 1fr 2fr;"><div>时间</div><div>操作内容</div></div>
+                    <div class="table-body" id="logsBody"><div class="empty-state"><div class="empty-icon">📋</div><p>暂无日志记录</p></div></div>
+                </div>
+            </div>
+            <div class="page" id="page-password">
+                <h2 class="page-title">修改密码</h2>
+                <div class="data-table">
+                    <div class="table-header" style="grid-template-columns: 1fr;"><div>密码修改</div></div>
+                    <div style="padding: 20px;">
+                        <form id="passwordForm">
+                            <div class="form-group"><label class="form-label">当前密码</label><input type="password" class="form-input" id="currentPassword" required></div>
+                            <div class="form-group"><label class="form-label">新密码</label><input type="password" class="form-input" id="newPassword" required></div>
+                            <div class="form-group"><label class="form-label">确认新密码</label><input type="password" class="form-input" id="confirmPassword" required></div>
+                            <button type="submit" class="action-btn primary"><span>🔑</span> 修改密码</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <div class="modal-overlay" id="personModal">
+        <div class="modal">
+            <div class="modal-header"><h3 class="modal-title" id="personModalTitle">添加人员</h3><button class="modal-close" onclick="closeModal('personModal')">×</button></div>
+            <div class="form-group"><label class="form-label">姓名 *</label><input type="text" class="form-input" id="personName" required></div>
+            <div class="form-group"><label class="form-label">手机号 *</label><input type="tel" class="form-input" id="personPhone" required></div>
+            <div class="form-group"><label class="form-label">邮箱 *</label><input type="email" class="form-input" id="personEmail" required></div>
+            <div class="form-group"><label class="form-label">状态</label><select class="form-select" id="personStatus"><option value="active">启用</option><option value="inactive">禁用</option></select></div>
+            <div class="form-group"><label class="form-label">审核状态</label><select class="form-select" id="personAuditStatus"><option value="approved">已通过</option><option value="pending">待审核</option><option value="rejected">已拒绝</option></select></div>
+            <div class="form-group"><label class="form-label">备注</label><input type="text" class="form-input" id="personRemark"></div>
+            <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('personModal')">取消</button><button class="btn btn-primary" onclick="savePerson()">保存</button></div>
+        </div>
+    </div>
+    <div class="modal-overlay" id="viewModal">
+        <div class="modal">
+            <div class="modal-header"><h3 class="modal-title">查看详情</h3><button class="modal-close" onclick="closeModal('viewModal')">×</button></div>
+            <div id="viewContent"></div>
+        </div>
+    </div>
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal confirm-modal">
+            <div class="modal-header"><h3 class="modal-title" id="confirmTitle">确认操作</h3><button class="modal-close" onclick="closeModal('confirmModal')">×</button></div>
+            <div class="confirm-icon">⚠️</div>
+            <p class="confirm-message" id="confirmMessage">确定要执行此操作吗？</p>
+            <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('confirmModal')">取消</button><button class="btn btn-primary" id="confirmBtn" onclick="confirmAction()">确定</button></div>
+        </div>
+    </div>
+    <div class="toast-container" id="toastContainer"></div>
+    <script>
+        const STORAGE_KEYS = { ADMIN: 'admin_account', ATTENDEES: 'attendees_data', SETTINGS: 'system_settings', LOGS: 'operation_logs' };
+        let attendees = [];
+        let logs = [];
+        let editId = null;
+        let pendingConfirm = null;
+        function hashPassword(pwd) { let hash = 0; for (let i = 0; i < pwd.length; i++) { const char = pwd.charCodeAt(i); hash = ((hash << 5) - hash) + char; hash = hash & hash; } return hash.toString(); }
+        function loadFromStorage(key) { const data = localStorage.getItem(key); return data ? JSON.parse(data) : null; }
+        function saveToStorage(key, data) { localStorage.setItem(key, JSON.stringify(data)); }
+        function initAdmin() { const admin = loadFromStorage(STORAGE_KEYS.ADMIN); if (!admin) { saveToStorage(STORAGE_KEYS.ADMIN, { username: 'admin', password: hashPassword('admin123') }); } }
+        function authenticate(username, password) { const admin = loadFromStorage(STORAGE_KEYS.ADMIN); return admin && admin.username === username && admin.password === hashPassword(password); }
+        function performLogin() { const username = document.getElementById('loginUsername').value; const password = document.getElementById('loginPassword').value; const errorMsg = document.getElementById('errorMsg'); if (authenticate(username, password)) { sessionStorage.setItem('isLoggedIn', 'true'); document.getElementById('loginContainer').classList.add('hidden'); document.getElementById('appContainer').style.display = 'flex'; initData(); addLog('登录', '管理员登录系统'); } else { errorMsg.textContent = '账号或密码错误'; errorMsg.classList.add('show'); setTimeout(() => errorMsg.classList.remove('show'), 3000); } }
+        function logout() { sessionStorage.removeItem('isLoggedIn'); document.getElementById('loginContainer').classList.remove('hidden'); document.getElementById('appContainer').style.display = 'none'; addLog('退出', '管理员退出系统'); }
+        function checkAuth() { if (sessionStorage.getItem('isLoggedIn') === 'true') { document.getElementById('loginContainer').classList.add('hidden'); document.getElementById('appContainer').style.display = 'flex'; return true; } return false; }
+        function initData() { attendees = loadFromStorage(STORAGE_KEYS.ATTENDEES) || []; logs = loadFromStorage(STORAGE_KEYS.LOGS) || []; updateStats(); renderTable(); renderLogs(); loadSettings(); }
+        function showPage(page) { document.querySelectorAll('.page').forEach(p => p.classList.remove('active')); document.getElementById('page-' + page).classList.add('active'); document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active')); document.querySelector('[data-page="' + page + '"]').classList.add('active'); }
+        document.querySelectorAll('.nav-item').forEach(item => { item.addEventListener('click', function() { showPage(this.dataset.page); }); });
+        function updateStats() { document.getElementById('statTotal').textContent = attendees.length; document.getElementById('statActive').textContent = attendees.filter(a => a.status === 'active').length; document.getElementById('statPending').textContent = attendees.filter(a => a.auditStatus === 'pending').length; document.getElementById('statApproved').textContent = attendees.filter(a => a.auditStatus === 'approved').length; }
+        function renderTable(filter = '') { const tbody = document.getElementById('tableBody'); const filtered = attendees.filter(a => a.name.includes(filter) || a.phone.includes(filter) || a.email.includes(filter)); if (filtered.length === 0) { tbody.innerHTML = '<div class="empty-state"><div class="empty-icon">📋</div><p>暂无人员数据</p></div>'; return; } tbody.innerHTML = filtered.map(person => '<div class="table-row"><div>' + person.name + '</div><div>' + person.phone + '</div><div>' + person.email + '</div><div><span class="status-badge ' + (person.status === 'active' ? 'status-approved' : 'status-rejected') + '">' + (person.status === 'active' ? '启用' : '禁用') + '</span></div><div><span class="status-badge status-' + person.auditStatus + '">' + (person.auditStatus === 'approved' ? '已通过' : person.auditStatus === 'pending' ? '待审核' : '已拒绝') + '</span></div><div class="action-group"><button class="icon-btn" onclick="viewPerson(' + person.id + ')" title="查看">👁️</button><button class="icon-btn" onclick="editPerson(' + person.id + ')" title="编辑">✏️</button><button class="icon-btn danger" onclick="deletePerson(' + person.id + ')" title="删除">🗑️</button></div></div>').join(''); }
+        function filterAttendees() { const search = document.getElementById('searchInput').value; renderTable(search); }
+        function addLog(action, detail) { logs.unshift({ time: new Date().toLocaleString('zh-CN'), action, detail }); if (logs.length > 100) logs = logs.slice(0, 100); saveToStorage(STORAGE_KEYS.LOGS, logs); renderLogs(); }
+        function renderLogs() { const body = document.getElementById('logsBody'); if (logs.length === 0) { body.innerHTML = '<div class="empty-state"><div class="empty-icon">📋</div><p>暂无日志记录</p></div>'; return; } body.innerHTML = logs.map(log => '<div class="table-row" style="grid-template-columns: 1fr 2fr;"><div style="color: var(--text-muted); font-size: 13px;">' + log.time + '</div><div><strong>' + log.action + '</strong>: ' + log.detail + '</div></div>').join(''); }
+        function clearLogs() { showConfirm('清空日志', '确定要清空所有日志吗？', () => { logs = []; saveToStorage(STORAGE_KEYS.LOGS, logs); renderLogs(); showToast('日志已清空', 'success'); }); }
+        function showToast(message, type = 'info') { const container = document.getElementById('toastContainer'); const toast = document.createElement('div'); toast.className = 'toast ' + type; toast.textContent = message; container.appendChild(toast); setTimeout(() => toast.remove(), 3000); }
+        function showConfirm(title, message, onConfirm) { document.getElementById('confirmTitle').textContent = title; document.getElementById('confirmMessage').textContent = message; pendingConfirm = onConfirm; openModal('confirmModal'); }
+        function confirmAction() { if (pendingConfirm) pendingConfirm(); closeModal('confirmModal'); }
+        function openModal(id) { document.getElementById(id).classList.add('show'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+        function openAddModal() { editId = null; document.getElementById('personModalTitle').textContent = '添加人员'; document.getElementById('personName').value = ''; document.getElementById('personPhone').value = ''; document.getElementById('personEmail').value = ''; document.getElementById('personStatus').value = 'active'; document.getElementById('personAuditStatus').value = 'approved'; document.getElementById('personRemark').value = ''; openModal('personModal'); }
+        function editPerson(id) { const person = attendees.find(a => a.id === id); if (!person) return; editId = id; document.getElementById('personModalTitle').textContent = '编辑人员'; document.getElementById('personName').value = person.name; document.getElementById('personPhone').value = person.phone; document.getElementById('personEmail').value = person.email; document.getElementById('personStatus').value = person.status; document.getElementById('personAuditStatus').value = person.auditStatus; document.getElementById('personRemark').value = person.remark || ''; openModal('personModal'); }
+        function viewPerson(id) { const person = attendees.find(a => a.id === id); if (!person) return; document.getElementById('viewContent').innerHTML = '<div style="display: grid; gap: 16px;"><div class="form-group" style="margin: 0;"><label class="form-label">姓名</label><div style="color: var(--text-primary); font-size: 16px; font-weight: 500;">' + person.name + '</div></div><div class="form-group" style="margin: 0;"><label class="form-label">手机号</label><div style="color: var(--text-primary);">' + person.phone + '</div></div><div class="form-group" style="margin: 0;"><label class="form-label">邮箱</label><div style="color: var(--text-primary);">' + person.email + '</div></div><div class="form-group" style="margin: 0;"><label class="form-label">状态</label><span class="status-badge ' + (person.status === 'active' ? 'status-approved' : 'status-rejected') + '">' + (person.status === 'active' ? '✓ 启用' : '✗ 禁用') + '</span></div><div class="form-group" style="margin: 0;"><label class="form-label">审核状态</label><span class="status-badge status-' + person.auditStatus + '">' + (person.auditStatus === 'approved' ? '✓ 已通过' : person.auditStatus === 'pending' ? '⏳ 待审核' : '✗ 已拒绝') + '</span></div><div class="form-group" style="margin: 0;"><label class="form-label">备注</label><div style="color: var(--text-secondary);">' + (person.remark || '无') + '</div></div><div class="form-group" style="margin: 0;"><label class="form-label">创建时间</label><div style="color: var(--text-muted); font-size: 12px;">' + (person.createdAt ? new Date(person.createdAt).toLocaleString('zh-CN') : '-') + '</div></div></div>'; openModal('viewModal'); }
+        function savePerson() { const name = document.getElementById('personName').value.trim(); const phone = document.getElementById('personPhone').value.trim(); const email = document.getElementById('personEmail').value.trim(); const status = document.getElementById('personStatus').value; const auditStatus = document.getElementById('personAuditStatus').value; const remark = document.getElementById('personRemark').value.trim(); if (!name || !phone || !email) { showToast('请填写必填项', 'error'); return; } if (editId) { const index = attendees.findIndex(a => a.id === editId); if (index !== -1) { attendees[index] = { ...attendees[index], name, phone, email, status, auditStatus, remark }; addLog('编辑人员', '编辑了 ' + name + ' 的信息'); showToast('修改成功', 'success'); } } else { const newId = Math.max(0, ...attendees.map(a => a.id)) + 1; attendees.push({ id: newId, name, phone, email, status, auditStatus, remark, createdAt: new Date().toISOString() }); addLog('添加人员', '添加了新人员: ' + name); showToast('添加成功', 'success'); } saveToStorage(STORAGE_KEYS.ATTENDEES, attendees); closeModal('personModal'); updateStats(); filterAttendees(); }
+        function deletePerson(id) { const person = attendees.find(a => a.id === id); if (!person) return; showConfirm('删除确认', '确定要删除 "' + person.name + '" 吗？', () => { attendees = attendees.filter(a => a.id !== id); saveToStorage(STORAGE_KEYS.ATTENDEES, attendees); addLog('删除人员', '删除了 ' + person.name); updateStats(); renderTable(); showToast('删除成功', 'success'); }); }
+        function importData() { const importType = document.getElementById('importType').value; let jsonStr = ''; if (importType === 'json-text') { jsonStr = document.getElementById('jsonInput').value; } else { showToast('请先选择文件', 'warning'); return; } try { const data = JSON.parse(jsonStr); if (!Array.isArray(data)) { showToast('数据格式错误：需要数组格式', 'error'); return; } let added = 0; let skipped = 0; data.forEach(item => { if (item.name && item.phone && item.email) { const exists = attendees.some(a => a.name === item.name && a.phone === item.phone); if (!exists) { const newId = Math.max(0, ...attendees.map(a => a.id)) + 1; attendees.push({ id: newId, name: item.name, phone: item.phone, email: item.email, status: item.status || 'active', auditStatus: item.auditStatus || 'approved', remark: item.remark || '', createdAt: new Date().toISOString() }); added++; } else { skipped++; } } else { skipped++; } }); saveToStorage(STORAGE_KEYS.ATTENDEES, attendees); addLog('数据导入', '导入了 ' + added + ' 条数据，跳过 ' + skipped + ' 条'); document.getElementById('jsonInput').value = ''; updateStats(); filterAttendees(); showPage('attendees'); showToast('导入完成：新增 ' + added + ' 条，跳过 ' + skipped + ' 条', added > 0 ? 'success' : 'warning'); } catch (e) { showToast('JSON格式错误：' + e.message, 'error'); } }
+        function clearImportData() { showConfirm('清空数据', '确定要清空所有人员数据吗？此操作不可撤销！', () => { attendees = []; saveToStorage(STORAGE_KEYS.ATTENDEES, attendees); addLog('清空数据', '清空了所有人员数据'); updateStats(); renderTable(); showToast('数据已清空', 'success'); }); }
+        function exportJSON() { const data = attendees.map(a => ({ name: a.name, phone: a.phone, email: a.email })); downloadFile(JSON.stringify(data, null, 2), 'attendees_export.json', 'application/json'); addLog('导出数据', '导出了JSON格式数据'); showToast('JSON导出成功', 'success'); }
+        function exportCSV() { const headers = ['姓名', '手机号', '邮箱']; const rows = attendees.map(a => [a.name, a.phone, a.email]); let csv = '﻿'; csv += headers.join(',') + '
+'; rows.forEach(row => { csv += row.map(v => '"' + v + '"').join(',') + '
+'; }); downloadFile(csv, 'attendees_export.csv', 'text/csv;charset=utf-8'); addLog('导出数据', '导出了CSV格式数据'); showToast('CSV导出成功', 'success'); }
+        function exportBackup() { const backup = { version: '1.0', exportTime: new Date().toISOString(), attendees: attendees, settings: loadFromStorage(STORAGE_KEYS.SETTINGS) }; downloadFile(JSON.stringify(backup, null, 2), 'attendees_backup.json', 'application/json'); addLog('数据备份', '创建了完整数据备份'); showToast('备份导出成功', 'success'); }
+        function downloadFile(content, filename, type) { const blob = new Blob([content], { type }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = filename; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); }
+        function loadSettings() { const settings = loadFromStorage(STORAGE_KEYS.SETTINGS) || {}; document.getElementById('configName').value = settings.name || ''; document.getElementById('configTime').value = settings.time || ''; document.getElementById('configLocation').value = settings.location || ''; document.getElementById('configTitle').value = settings.title || ''; document.getElementById('configFooter').value = settings.footer || ''; }
+        function saveSettings() { const settings = { name: document.getElementById('configName').value, time: document.getElementById('configTime').value, location: document.getElementById('configLocation').value, title: document.getElementById('configTitle').value, footer: document.getElementById('configFooter').value }; saveToStorage(STORAGE_KEYS.SETTINGS, settings); addLog('保存设置', '更新了系统配置'); showToast('设置已保存', 'success'); }
+        document.getElementById('passwordForm').addEventListener('submit', function(e) { e.preventDefault(); const currentPwd = document.getElementById('currentPassword').value; const newPwd = document.getElementById('newPassword').value; const confirmPwd = document.getElementById('confirmPassword').value; if (newPwd !== confirmPwd) { showToast('两次输入的密码不一致', 'error'); return; } if (newPwd.length < 6) { showToast('新密码长度至少6位', 'error'); return; } const admin = loadFromStorage(STORAGE_KEYS.ADMIN); if (admin.password !== hashPassword(currentPwd)) { showToast('当前密码错误', 'error'); return; } admin.password = hashPassword(newPwd); saveToStorage(STORAGE_KEYS.ADMIN, admin); addLog('修改密码', '修改了管理员密码'); document.getElementById('passwordForm').reset(); showToast('密码修改成功', 'success'); });
+        document.addEventListener('DOMContentLoaded', function() { initAdmin(); if (!checkAuth()) { sessionStorage.setItem('isLoggedIn', 'true'); document.getElementById('loginContainer').classList.add('hidden'); document.getElementById('appContainer').style.display = 'flex'; initData(); } });
+    </script>
+</body>
+</html>
