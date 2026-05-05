@@ -1,0 +1,2773 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>参会人员管理系统 - 国文汇通</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #050510;
+            --bg-card: rgba(15, 20, 40, 0.7);
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 215, 0, 0.15);
+            --gold-primary: #FFD700;
+            --gold-light: #FFE55C;
+            --gold-dark: #B8860B;
+            --blue-accent: #1E3A5F;
+            --blue-light: #2D5A8F;
+            --text-primary: #FFFFFF;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --text-muted: rgba(255, 255, 255, 0.4);
+            --success-green: #00E676;
+            --error-red: #FF5252;
+            --warning-orange: #FF9800;
+            --info-cyan: #00BCD4;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html, body {
+            height: 100%;
+            will-change: transform;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* 背景效果 */
+        .bg-gradient {
+            position: fixed;
+            inset: 0;
+            background: 
+                radial-gradient(ellipse 80% 50% at 50% -20%, rgba(30, 58, 95, 0.4) 0%, transparent 50%),
+                radial-gradient(ellipse 60% 40% at 80% 100%, rgba(255, 215, 0, 0.08) 0%, transparent 40%),
+                var(--bg-dark);
+            z-index: 0;
+        }
+
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            background-image: 
+                linear-gradient(rgba(255, 215, 0, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 215, 0, 0.02) 1px, transparent 1px);
+            background-size: 60px 60px;
+            z-index: 0;
+        }
+
+        /* 登录页面 */
+        .login-container {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            background: var(--bg-dark);
+        }
+
+        .login-container.hidden { display: none; }
+
+        .login-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(30px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 48px;
+            width: 100%;
+            max-width: 420px;
+            position: relative;
+            animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 60px rgba(255, 215, 0, 0.1);
+        }
+
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 24px;
+            right: 24px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--gold-primary), transparent);
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .login-icon {
+            width: 72px;
+            height: 72px;
+            margin: 0 auto 24px;
+            background: linear-gradient(135deg, var(--gold-primary), var(--gold-dark));
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            box-shadow: 0 8px 32px rgba(255, 215, 0, 0.3);
+        }
+
+        .login-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 8px;
+            color: var(--gold-primary);
+            letter-spacing: 2px;
+        }
+
+        .login-subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            margin-bottom: 32px;
+            font-size: 14px;
+        }
+
+        .input-group { margin-bottom: 20px; }
+
+        .input-label {
+            display: block;
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 16px 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 215, 0, 0.1);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--gold-primary);
+            box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.1);
+        }
+
+        .input-field::placeholder { color: var(--text-muted); }
+
+        .login-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--gold-primary), var(--gold-dark));
+            border: none;
+            border-radius: 12px;
+            color: #000;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 8px;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(255, 215, 0, 0.3);
+        }
+
+        .login-error {
+            color: var(--error-red);
+            font-size: 13px;
+            text-align: center;
+            margin-top: 12px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .login-error.show { opacity: 1; }
+
+        /* 主应用容器 */
+        .app-container {
+            display: none;
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
+        }
+
+        .app-container.active { display: flex; }
+
+        /* 侧边栏 */
+        .sidebar {
+            width: 280px;
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid var(--glass-border);
+            padding: 24px 16px;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            z-index: 100;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 8px 24px;
+            border-bottom: 1px solid var(--glass-border);
+            margin-bottom: 24px;
+        }
+
+        .sidebar-logo {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--gold-primary), var(--gold-dark));
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 4px 16px rgba(255, 215, 0, 0.3);
+        }
+
+        .sidebar-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--gold-primary);
+        }
+
+        .sidebar-nav { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            border-radius: 12px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 215, 0, 0.05);
+            color: var(--text-primary);
+        }
+
+        .nav-item.active {
+            background: rgba(255, 215, 0, 0.1);
+            border-color: rgba(255, 215, 0, 0.3);
+            color: var(--gold-primary);
+        }
+
+        .nav-icon { font-size: 18px; width: 24px; text-align: center; }
+
+        .sidebar-footer { padding-top: 24px; border-top: 1px solid var(--glass-border); }
+
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            border-radius: 12px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+            background: transparent;
+            width: 100%;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 82, 82, 0.1);
+            border-color: rgba(255, 82, 82, 0.3);
+            color: var(--error-red);
+        }
+
+        /* 主内容区 */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 24px;
+            min-height: 100vh;
+        }
+
+        /* 顶部状态栏 */
+        .top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .top-bar-left { display: flex; align-items: center; gap: 16px; }
+
+        .menu-toggle {
+            display: none;
+            width: 44px;
+            height: 44px;
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-primary);
+            font-size: 20px;
+        }
+
+        .page-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--gold-primary);
+        }
+
+        .top-bar-right { display: flex; align-items: center; gap: 12px; }
+
+        .stats-mini {
+            display: flex;
+            gap: 12px;
+        }
+
+        .stat-badge {
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stat-badge-icon { font-size: 16px; }
+
+        .stat-badge-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--gold-primary);
+        }
+
+        .stat-badge-label { font-size: 12px; color: var(--text-muted); }
+
+        /* 页面区域 */
+        .page-section { display: none; }
+
+        .page-section.active {
+            display: block;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 玻璃卡片 */
+        .glass-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.5), transparent);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-title-icon { color: var(--gold-primary); }
+
+        /* 工具栏 */
+        .toolbar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .search-box {
+            position: relative;
+            flex: 1;
+            min-width: 200px;
+            max-width: 400px;
+        }
+
+        .search-box-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 14px 12px 44px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 215, 0, 0.1);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--gold-primary);
+            box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.1);
+        }
+
+        .search-input::placeholder { color: var(--text-muted); }
+
+        /* 按钮 */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--gold-primary), var(--gold-dark));
+            color: #000;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(255, 215, 0, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 215, 0, 0.1);
+            color: var(--gold-primary);
+            border-color: rgba(255, 215, 0, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 215, 0, 0.2);
+        }
+
+        .btn-danger {
+            background: rgba(255, 82, 82, 0.1);
+            color: var(--error-red);
+            border-color: rgba(255, 82, 82, 0.3);
+        }
+
+        .btn-danger:hover { background: rgba(255, 82, 82, 0.2); }
+
+        .btn-success {
+            background: rgba(0, 230, 118, 0.1);
+            color: var(--success-green);
+            border-color: rgba(0, 230, 118, 0.3);
+        }
+
+        .btn-success:hover { background: rgba(0, 230, 118, 0.2); }
+
+        .btn-sm { padding: 8px 14px; font-size: 13px; }
+
+        .btn-icon {
+            width: 36px;
+            height: 36px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+        }
+
+        /* 数据表格 */
+        .data-table-wrapper {
+            overflow-x: auto;
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 14px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .data-table th {
+            background: rgba(0, 0, 0, 0.3);
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+
+        .data-table tbody tr {
+            transition: background 0.2s;
+        }
+
+        .data-table tbody tr:hover {
+            background: rgba(255, 215, 0, 0.05);
+        }
+
+        .data-table tbody tr:last-child td { border-bottom: none; }
+
+        .checkbox-cell {
+            width: 40px;
+            text-align: center;
+        }
+
+        .custom-checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: var(--gold-primary);
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-approved {
+            background: rgba(0, 230, 118, 0.1);
+            color: var(--success-green);
+            border: 1px solid rgba(0, 230, 118, 0.3);
+        }
+
+        .status-pending {
+            background: rgba(255, 152, 0, 0.1);
+            color: var(--warning-orange);
+            border: 1px solid rgba(255, 152, 0, 0.3);
+        }
+
+        .status-rejected {
+            background: rgba(255, 82, 82, 0.1);
+            color: var(--error-red);
+            border: 1px solid rgba(255, 82, 82, 0.3);
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+
+        .action-btn.edit {
+            background: rgba(255, 215, 0, 0.1);
+            color: var(--gold-primary);
+        }
+
+        .action-btn.edit:hover { background: rgba(255, 215, 0, 0.2); }
+
+        .action-btn.delete {
+            background: rgba(255, 82, 82, 0.1);
+            color: var(--error-red);
+        }
+
+        .action-btn.delete:hover { background: rgba(255, 82, 82, 0.2); }
+
+        .action-btn.view {
+            background: rgba(0, 188, 212, 0.1);
+            color: var(--info-cyan);
+        }
+
+        .action-btn.view:hover { background: rgba(0, 188, 212, 0.2); }
+
+        /* 分页 */
+        .pagination-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .pagination-info {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .pagination-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .pagination-btn {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+
+        .pagination-btn:hover:not(:disabled) {
+            background: rgba(255, 215, 0, 0.1);
+            border-color: var(--gold-primary);
+            color: var(--gold-primary);
+        }
+
+        .pagination-btn.active {
+            background: var(--gold-primary);
+            border-color: var(--gold-primary);
+            color: #000;
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .page-size-select {
+            padding: 8px 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        /* 模态框 */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal-overlay.active { display: flex; }
+
+        .modal {
+            background: var(--bg-card);
+            backdrop-filter: blur(30px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            width: 100%;
+            max-width: 560px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: modalIn 0.3s ease;
+        }
+
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.95) translateY(-20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--gold-primary);
+        }
+
+        .modal-close {
+            width: 36px;
+            height: 36px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 82, 82, 0.2);
+            color: var(--error-red);
+        }
+
+        .modal-body { padding: 24px; }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            padding: 20px 24px;
+            border-top: 1px solid var(--glass-border);
+        }
+
+        .form-group { margin-bottom: 20px; }
+
+        .form-label {
+            display: block;
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 215, 0, 0.1);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--gold-primary);
+            box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.1);
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 215, 0, 0.1);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .form-select option { background: var(--bg-dark); }
+
+        .form-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 215, 0, 0.1);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 14px;
+            resize: vertical;
+            min-height: 80px;
+            font-family: inherit;
+        }
+
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--gold-primary);
+            box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.1);
+        }
+
+        /* Toast通知 */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .toast {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: toastIn 0.3s ease;
+            min-width: 300px;
+            max-width: 400px;
+        }
+
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateX(100%); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .toast.hiding {
+            animation: toastOut 0.3s ease forwards;
+        }
+
+        @keyframes toastOut {
+            to { opacity: 0; transform: translateX(100%); }
+        }
+
+        .toast-icon { font-size: 20px; }
+
+        .toast-success { border-color: rgba(0, 230, 118, 0.3); }
+        .toast-error { border-color: rgba(255, 82, 82, 0.3); }
+        .toast-warning { border-color: rgba(255, 152, 0, 0.3); }
+        .toast-info { border-color: rgba(0, 188, 212, 0.3); }
+
+        .toast-message { font-size: 14px; flex: 1; }
+
+        /* 统计卡片 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--gold-primary), transparent);
+        }
+
+        .stat-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+        }
+
+        .stat-icon.gold {
+            background: rgba(255, 215, 0, 0.1);
+            color: var(--gold-primary);
+        }
+
+        .stat-icon.green {
+            background: rgba(0, 230, 118, 0.1);
+            color: var(--success-green);
+        }
+
+        .stat-icon.orange {
+            background: rgba(255, 152, 0, 0.1);
+            color: var(--warning-orange);
+        }
+
+        .stat-icon.cyan {
+            background: rgba(0, 188, 212, 0.1);
+            color: var(--info-cyan);
+        }
+
+        .stat-info h3 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .stat-info p {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        /* 日志列表 */
+        .log-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .log-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .log-time {
+            font-size: 12px;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+
+        .log-action {
+            font-size: 13px;
+            color: var(--text-secondary);
+            flex: 1;
+        }
+
+        .log-user {
+            font-size: 12px;
+            color: var(--gold-primary);
+        }
+
+        /* 配置表单 */
+        .config-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+        }
+
+        .config-section {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .config-section h4 {
+            font-size: 14px;
+            color: var(--gold-primary);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* 导入导出区域 */
+        .import-export-area {
+            border: 2px dashed var(--glass-border);
+            border-radius: 12px;
+            padding: 32px;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .import-export-area:hover {
+            border-color: var(--gold-primary);
+            background: rgba(255, 215, 0, 0.05);
+        }
+
+        .import-export-area.dragover {
+            border-color: var(--gold-primary);
+            background: rgba(255, 215, 0, 0.1);
+        }
+
+        .import-icon { font-size: 48px; margin-bottom: 16px; }
+
+        .import-text {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .import-hint {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* 响应式 */
+        @media (max-width: 1024px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .main-content { margin-left: 0; }
+            .menu-toggle { display: flex; }
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+            .top-bar { flex-direction: column; align-items: flex-start; }
+            .toolbar { flex-direction: column; }
+            .search-box { max-width: 100%; width: 100%; }
+            .pagination-wrapper { flex-direction: column; align-items: flex-start; }
+            .modal { max-width: 100%; margin: 10px; }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .login-card { padding: 32px 24px; }
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-state-icon { font-size: 64px; margin-bottom: 16px; opacity: 0.5; }
+        .empty-state h3 { font-size: 18px; margin-bottom: 8px; color: var(--text-secondary); }
+        .empty-state p { font-size: 14px; }
+
+        /* 批量操作栏 */
+        .batch-actions {
+            display: none;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 10px;
+            margin-bottom: 16px;
+        }
+
+        .batch-actions.show { display: flex; }
+
+        .batch-count {
+            color: var(--gold-primary);
+            font-weight: 600;
+        }
+
+        /* 确认对话框 */
+        .confirm-modal .modal {
+            max-width: 400px;
+        }
+
+        .confirm-content {
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .confirm-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+
+        .confirm-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .confirm-message {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <!-- 背景 -->
+    <div class="bg-gradient"></div>
+    <div class="bg-grid"></div>
+
+    <!-- Toast容器 -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- 登录页面 -->
+    <div class="login-container" id="loginContainer">
+        <div class="login-card">
+            <div class="login-icon">🔐</div>
+            <h1 class="login-title">管理系统</h1>
+            <p class="login-subtitle">参会人员管理后台</p>
+            
+            <form id="loginForm">
+                <div class="input-group">
+                    <label class="input-label">管理员账号</label>
+                    <input type="text" class="input-field" id="loginUsername" placeholder="请输入账号" autocomplete="off">
+                </div>
+                <div class="input-group">
+                    <label class="input-label">登录密码</label>
+                    <input type="password" class="input-field" id="loginPassword" placeholder="请输入密码">
+                </div>
+                <button type="submit" class="login-btn">登 录</button>
+                <p class="login-error" id="loginError">账号或密码错误</p>
+            </form>
+            
+            <p style="text-align: center; margin-top: 24px; font-size: 12px; color: var(--text-muted);">
+                默认账号: admin / 密码: admin888
+            </p>
+        </div>
+    </div>
+
+    <!-- 主应用 -->
+    <div class="app-container" id="appContainer">
+        <!-- 侧边栏 -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">📋</div>
+                <div>
+                    <div class="sidebar-title">管理后台</div>
+                    <div style="font-size: 12px; color: var(--text-muted);">参会人员管理</div>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-item active" data-page="dashboard">
+                    <span class="nav-icon">📊</span>
+                    <span>数据概览</span>
+                </div>
+                <div class="nav-item" data-page="attendees">
+                    <span class="nav-icon">👥</span>
+                    <span>人员管理</span>
+                </div>
+                <div class="nav-item" data-page="import-export">
+                    <span class="nav-icon">📥</span>
+                    <span>导入导出</span>
+                </div>
+                <div class="nav-item" data-page="logs">
+                    <span class="nav-icon">📝</span>
+                    <span>操作日志</span>
+                </div>
+                <div class="nav-item" data-page="settings">
+                    <span class="nav-icon">⚙️</span>
+                    <span>系统设置</span>
+                </div>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="nav-item" data-page="password">
+                    <span class="nav-icon">🔑</span>
+                    <span>修改密码</span>
+                </div>
+                <button class="logout-btn" id="logoutBtn">
+                    <span class="nav-icon">🚪</span>
+                    <span>退出登录</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- 主内容 -->
+        <main class="main-content">
+            <!-- 顶部栏 -->
+            <div class="top-bar">
+                <div class="top-bar-left">
+                    <button class="menu-toggle" id="menuToggle">☰</button>
+                    <h1 class="page-title" id="pageTitle">数据概览</h1>
+                </div>
+                <div class="top-bar-right">
+                    <div class="stats-mini">
+                        <div class="stat-badge">
+                            <span class="stat-badge-icon">👥</span>
+                            <span class="stat-badge-value" id="totalCount">189</span>
+                            <span class="stat-badge-label">总人数</span>
+                        </div>
+                        <div class="stat-badge">
+                            <span class="stat-badge-icon">✓</span>
+                            <span class="stat-badge-value" id="approvedCount">189</span>
+                            <span class="stat-badge-label">已通过</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 数据概览页 -->
+            <section class="page-section active" id="dashboardPage">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon gold">👥</div>
+                        <div class="stat-info">
+                            <h3 id="statTotal">189</h3>
+                            <p>参会总人数</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon green">✓</div>
+                        <div class="stat-info">
+                            <h3 id="statApproved">189</h3>
+                            <p>审核通过</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon orange">⏳</div>
+                        <div class="stat-info">
+                            <h3 id="statPending">0</h3>
+                            <p>待审核</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon cyan">📱</div>
+                        <div class="stat-info">
+                            <h3 id="statUniquePhones">189</h3>
+                            <p>独立手机号</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <span class="card-title-icon">📈</span>
+                            快速操作
+                        </h3>
+                    </div>
+                    <div class="toolbar">
+                        <button class="btn btn-primary" onclick="showPage('attendees')">
+                            ➕ 添加人员
+                        </button>
+                        <button class="btn btn-secondary" onclick="showPage('import-export')">
+                            📥 导入数据
+                        </button>
+                        <button class="btn btn-secondary" onclick="exportJSON()">
+                            📤 导出JSON
+                        </button>
+                        <button class="btn btn-secondary" onclick="exportCSV()">
+                            📊 导出CSV
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 人员管理页 -->
+            <section class="page-section" id="attendeesPage">
+                <div class="glass-card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <span class="card-title-icon">👥</span>
+                            人员列表
+                        </h3>
+                        <div class="toolbar">
+                            <button class="btn btn-primary" onclick="openAddModal()">
+                                ➕ 添加人员
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="toolbar">
+                        <div class="search-box">
+                            <span class="search-box-icon">🔍</span>
+                            <input type="text" class="search-input" id="searchInput" placeholder="搜索姓名、手机号、邮箱...">
+                        </div>
+                        <select class="page-size-select" id="pageSizeSelect">
+                            <option value="10">每页 10 条</option>
+                            <option value="20" selected>每页 20 条</option>
+                            <option value="50">每页 50 条</option>
+                            <option value="100">每页 100 条</option>
+                        </select>
+                    </div>
+
+                    <div class="batch-actions" id="batchActions">
+                        <span class="batch-count">已选择 <span id="selectedCount">0</span> 项</span>
+                        <button class="btn btn-success btn-sm" onclick="batchApprove()">✓ 批量通过</button>
+                        <button class="btn btn-danger btn-sm" onclick="batchDelete()">🗑️ 批量删除</button>
+                        <button class="btn btn-secondary btn-sm" onclick="clearSelection()">取消选择</button>
+                    </div>
+
+                    <div class="data-table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th class="checkbox-cell">
+                                        <input type="checkbox" class="custom-checkbox" id="selectAll" onchange="toggleSelectAll()">
+                                    </th>
+                                    <th>序号</th>
+                                    <th>姓名</th>
+                                    <th>手机号</th>
+                                    <th>邮箱</th>
+                                    <th>状态</th>
+                                    <th>审核状态</th>
+                                    <th>备注</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="attendeeTableBody">
+                                <!-- 动态生成 -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="empty-state hidden" id="emptyState">
+                        <div class="empty-state-icon">📭</div>
+                        <h3>暂无数据</h3>
+                        <p>点击"添加人员"按钮添加第一条记录</p>
+                    </div>
+
+                    <div class="pagination-wrapper" id="paginationWrapper">
+                        <div class="pagination-info" id="paginationInfo">
+                            显示 1-20 条，共 189 条
+                        </div>
+                        <div class="pagination-controls">
+                            <select class="page-size-select" id="pageSizeSelectBottom">
+                                <option value="10">10条/页</option>
+                                <option value="20" selected>20条/页</option>
+                                <option value="50">50条/页</option>
+                                <option value="100">100条/页</option>
+                            </select>
+                            <button class="pagination-btn" id="prevPage" onclick="prevPage()">‹</button>
+                            <div id="pageNumbers"></div>
+                            <button class="pagination-btn" id="nextPage" onclick="nextPage()">›</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 导入导出页 -->
+            <section class="page-section" id="import-exportPage">
+                <div class="config-grid">
+                    <div class="glass-card">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <span class="card-title-icon">📥</span>
+                                数据导入
+                            </h3>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">导入方式</label>
+                            <select class="form-select" id="importType">
+                                <option value="json-text">粘贴 JSON 文本</option>
+                                <option value="json-file">上传 JSON 文件</option>
+                                <option value="csv-file">上传 CSV 文件</option>
+                            </select>
+                        </div>
+
+                        <div id="jsonTextArea" class="form-group">
+                            <label class="form-label">粘贴 JSON 数据</label>
+                            <textarea class="form-textarea" id="jsonInput" placeholder='[{"name":"姓名","phone":"手机号","email":"邮箱"}]' rows="8"></textarea>
+                        </div>
+
+                        <div id="fileUploadArea" class="import-export-area hidden">
+                            <div class="import-icon">📁</div>
+                            <p class="import-text">拖拽文件到此处或点击选择</p>
+                            <p class="import-hint">支持 .json, .csv 格式</p>
+                            <input type="file" id="fileInput" accept=".json,.csv" style="display: none;">
+                        </div>
+
+                        <div style="display: flex; gap: 12px; margin-top: 16px;">
+                            <button class="btn btn-primary" onclick="importData()">
+                                开始导入
+                            </button>
+                            <button class="btn btn-secondary" onclick="clearImportData()">
+                                清空数据
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="glass-card">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <span class="card-title-icon">📤</span>
+                                数据导出
+                            </h3>
+                        </div>
+
+                        <div style="display: flex; flex-direction: column; gap: 12px;">
+                            <button class="btn btn-secondary" onclick="exportJSON()" style="justify-content: flex-start;">
+                                📄 导出为 JSON
+                            </button>
+                            <button class="btn btn-secondary" onclick="exportCSV()" style="justify-content: flex-start;">
+                                📊 导出为 CSV (Excel兼容)
+                            </button>
+                            <button class="btn btn-secondary" onclick="exportBackup()" style="justify-content: flex-start;">
+                                💾 完整备份（含状态）
+                            </button>
+                        </div>
+
+                        <div class="card-header" style="margin-top: 24px;">
+                            <h3 class="card-title">
+                                <span class="card-title-icon">⚠️</span>
+                                危险操作
+                            </h3>
+                        </div>
+                        <button class="btn btn-danger" onclick="confirmClearAll()">
+                            🗑️ 清空所有数据
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 操作日志页 -->
+            <section class="page-section" id="logsPage">
+                <div class="glass-card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <span class="card-title-icon">📝</span>
+                            操作日志
+                        </h3>
+                        <button class="btn btn-secondary btn-sm" onclick="clearLogs()">
+                            清空日志
+                        </button>
+                    </div>
+                    <div class="log-list" id="logList">
+                        <!-- 动态生成 -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- 系统设置页 -->
+            <section class="page-section" id="settingsPage">
+                <div class="glass-card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <span class="card-title-icon">⚙️</span>
+                            会议信息配置
+                        </h3>
+                    </div>
+                    <div class="config-grid">
+                        <div class="config-section">
+                            <h4>📋 会议基本信息</h4>
+                            <div class="form-group">
+                                <label class="form-label">会议名称</label>
+                                <input type="text" class="form-input" id="configName" value="国文汇通暨生态上线新闻发布会">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">会议时间</label>
+                                <input type="text" class="form-input" id="configTime" value="2025年5月">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">会议地点</label>
+                                <input type="text" class="form-input" id="configLocation" value="深圳">
+                            </div>
+                        </div>
+                        <div class="config-section">
+                            <h4>📱 查询页面设置</h4>
+                            <div class="form-group">
+                                <label class="form-label">页面标题</label>
+                                <input type="text" class="form-input" id="configTitle" value="参会资格查询">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">底部提示文字</label>
+                                <input type="text" class="form-input" id="configFooter" value="如有疑问请联系工作人员">
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="saveSettings()" style="margin-top: 20px;">
+                        💾 保存设置
+                    </button>
+                </div>
+            </section>
+
+            <!-- 修改密码页 -->
+            <section class="page-section" id="passwordPage">
+                <div class="glass-card" style="max-width: 500px;">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <span class="card-title-icon">🔑</span>
+                            修改密码
+                        </h3>
+                    </div>
+                    <form id="passwordForm">
+                        <div class="form-group">
+                            <label class="form-label">当前密码</label>
+                            <input type="password" class="form-input" id="currentPassword" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">新密码</label>
+                            <input type="password" class="form-input" id="newPassword" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">确认新密码</label>
+                            <input type="password" class="form-input" id="confirmPassword" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            💾 确认修改
+                        </button>
+                    </form>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- 添加/编辑人员模态框 -->
+    <div class="modal-overlay" id="personModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">添加人员</h3>
+                <button class="modal-close" onclick="closeModal('personModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="personForm">
+                    <input type="hidden" id="personId">
+                    <div class="form-group">
+                        <label class="form-label">姓名 *</label>
+                        <input type="text" class="form-input" id="personName" required placeholder="请输入姓名">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">手机号 *</label>
+                        <input type="tel" class="form-input" id="personPhone" required placeholder="请输入手机号">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">邮箱 *</label>
+                        <input type="email" class="form-input" id="personEmail" required placeholder="请输入邮箱">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">状态</label>
+                        <select class="form-select" id="personStatus">
+                            <option value="active">启用</option>
+                            <option value="inactive">禁用</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">审核状态</label>
+                        <select class="form-select" id="personAuditStatus">
+                            <option value="approved">已通过</option>
+                            <option value="pending">待审核</option>
+                            <option value="rejected">已拒绝</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">备注</label>
+                        <textarea class="form-textarea" id="personRemark" placeholder="可选备注信息"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('personModal')">取消</button>
+                <button class="btn btn-primary" onclick="savePerson()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 确认对话框 -->
+    <div class="modal-overlay confirm-modal" id="confirmModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">确认操作</h3>
+                <button class="modal-close" onclick="closeModal('confirmModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="confirm-content">
+                    <div class="confirm-icon" id="confirmIcon">⚠️</div>
+                    <h4 class="confirm-title" id="confirmTitle">确认删除？</h4>
+                    <p class="confirm-message" id="confirmMessage">此操作不可撤销</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('confirmModal')">取消</button>
+                <button class="btn btn-danger" id="confirmBtn" onclick="doConfirm()">确认</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 查看详情模态框 -->
+    <div class="modal-overlay" id="viewModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">人员详情</h3>
+                <button class="modal-close" onclick="closeModal('viewModal')">×</button>
+            </div>
+            <div class="modal-body" id="viewContent">
+                <!-- 动态内容 -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('viewModal')">关闭</button>
+            </div>
+        </div>
+    </div>
+
+<script>
+// ========== 全局变量 ==========
+let attendees = [];
+let filteredAttendees = [];
+let currentPage = 1;
+let pageSize = 20;
+let selectedIds = new Set();
+let editId = null;
+let confirmCallback = null;
+
+// ========== 原始189人数据 ==========
+const originalData = [
+    {"name":"宋达","phone":"18861793936","email":"450452968@qq.com"},
+    {"name":"王宏泰","phone":"13388062980","email":"285475896@qq.com"},
+    {"name":"胡月霞","phone":"13750833002","email":"525557165@qq.com"},
+    {"name":"刘新雷","phone":"15062624556","email":"602016281@qq.com"},
+    {"name":"张立起","phone":"18538939801","email":"276605076@qq.com"},
+    {"name":"朱建彪","phone":"18352801111","email":"6947702@qq.com"},
+    {"name":"黄嘉妮","phone":"18026205551","email":"928469594@qq.com"},
+    {"name":"王峻","phone":"15285579826","email":"dereklynn2003@126.com"},
+    {"name":"张琳","phone":"15222223997","email":"1926421014@qq.com"},
+    {"name":"王小飞","phone":"13958722221","email":"296395244@qq.com"},
+    {"name":"应宇阳","phone":"15551941913","email":"957502416@qq.com"},
+    {"name":"赵勇","phone":"15152701683","email":"18118258006@163.com"},
+    {"name":"欧徽","phone":"19213276586","email":"2358125833@qq.com"},
+    {"name":"宋金慧","phone":"13728625652","email":"704269156@qq.com"},
+    {"name":"姚丹","phone":"18951167319","email":"527797149@qq.com"},
+    {"name":"兰莉娟","phone":"13983163915","email":"317152007@qq.com"},
+    {"name":"陈增元","phone":"15195150708","email":"120459165@qq.com"},
+    {"name":"黎清貌","phone":"19879411949","email":"779601316@qq.com"},
+    {"name":"杨庆奎","phone":"13102366285","email":"2237090783@qq.com"},
+    {"name":"刘昭","phone":"17333992222","email":"1317972392@qq.com"},
+    {"name":"范红保","phone":"15122328606","email":"153443792@qq.com"},
+    {"name":"李建飞","phone":"15070073766","email":"78535988@qq.com"},
+    {"name":"夏欢","phone":"13821772480","email":"494340830@qq.com"},
+    {"name":"张译心","phone":"13382572319","email":"527797149@qq.com"},
+    {"name":"张建立","phone":"15990689888","email":"583255541@qq.com"},
+    {"name":"郑秀峰","phone":"19866730764","email":"1306159401@qq.com"},
+    {"name":"罗本洲","phone":"13189768574","email":"lbz999777888@qq.com"},
+    {"name":"叶婷","phone":"13078567713","email":"13078567713@163.com"},
+    {"name":"刘花","phone":"18229903918","email":"396893488@qq.com"},
+    {"name":"雷雅勤","phone":"18384702039","email":"992997218@qq.com"},
+    {"name":"焦瑞娥","phone":"18662541354","email":"105842465@qq.com"},
+    {"name":"胡琴","phone":"17164526543","email":"924492133@qq.com"},
+    {"name":"赵生祥","phone":"17316556301","email":"18655399799@163.com"},
+    {"name":"童朵银","phone":"15151131551","email":"11315589992@qq.com"},
+    {"name":"张德容","phone":"17623433945","email":"332533162@qq.com"},
+    {"name":"李建西","phone":"19562683791","email":"2847049154@qq.com"},
+    {"name":"陈俊玲","phone":"13368388692","email":"497506442@qq.com"},
+    {"name":"何文","phone":"13382961193","email":"372863947@qq.com"},
+    {"name":"王宪东","phone":"13843013999","email":"1960903175@qq.com"},
+    {"name":"王苑兰","phone":"13715342008","email":"173274615@qq.com"},
+    {"name":"童智伟","phone":"15628688888","email":"24069988@qq.com"},
+    {"name":"赵丛娥","phone":"13512271351","email":"weiran_0415@qq.com"},
+    {"name":"夏介东","phone":"17712686615","email":"meishou1688@163.com"},
+    {"name":"徐海棠","phone":"13401611118","email":"m13401611118@163.com"},
+    {"name":"房岩","phone":"18761303300","email":"247091812@qq.com"},
+    {"name":"梁钜建","phone":"19907489388","email":"1260879005@qq.com"},
+    {"name":"黄丹","phone":"18986364336","email":"1587489906@qq.com"},
+    {"name":"周艳","phone":"13920852005","email":"992992721@qq.com"},
+    {"name":"邓星辉","phone":"17763795478","email":"3903527268@qq.com"},
+    {"name":"张月兰","phone":"18606222766","email":"1019851255@qq.com"},
+    {"name":"周再妃","phone":"13958119568","email":"240279362@qq.com"},
+    {"name":"李涛","phone":"13361552616","email":"414087992@qq.com"},
+    {"name":"周成燕","phone":"13754919964","email":"271750423@qq.com"},
+    {"name":"王红梅","phone":"13701310989","email":"2180395167@qq.com"},
+    {"name":"周红伟","phone":"13170411499","email":"545673513@qq.com"},
+    {"name":"王双凤","phone":"18637741097","email":"573398429@qq.com"},
+    {"name":"何飞","phone":"13627696168","email":"1294264226@qq.com"},
+    {"name":"王新渝","phone":"13368166090","email":"354550361@qq.com"},
+    {"name":"熊夕英","phone":"13043207737","email":"425343077@qq.com"},
+    {"name":"杨景","phone":"13116180088","email":"mingliujing52@foxmail.com"},
+    {"name":"潘义根","phone":"13907252641","email":"981249336@qq.com"},
+    {"name":"单凯","phone":"15240022165","email":"357437064@qq.com"},
+    {"name":"佟明革","phone":"13701120863","email":"2180395167@qq.com"},
+    {"name":"石晓容","phone":"13677604778","email":"3789928645@qq.com"},
+    {"name":"杨梦莹","phone":"13910754149","email":"350516782@qq.com"},
+    {"name":"肖和建","phone":"13517425524","email":"3531171465@qq.com"},
+    {"name":"丛春兹","phone":"13324469999","email":"1372586644@qq.com"},
+    {"name":"闵正道","phone":"13311593531","email":"13901132901@126.com"},
+    {"name":"陈燕琪","phone":"13713643972","email":"13713643972@163.com"},
+    {"name":"张义武","phone":"18585675552","email":"15217997709@163.com"},
+    {"name":"孟红","phone":"19741499131","email":"2027776398@qq.com"},
+    {"name":"潘冬冬","phone":"15366662355","email":"543924615@qq.com"},
+    {"name":"朱海霞","phone":"13913762266","email":"emma5333@163.com"},
+    {"name":"王恒怡","phone":"13782044137","email":"e13782044137@163.com"},
+    {"name":"罗为平","phone":"13139632827","email":"1583597138@qq.com"},
+    {"name":"刘昕沅","phone":"18889442613","email":"3975221809@qq.com"},
+    {"name":"马云华","phone":"15922201261","email":"349888449@qq.com"},
+    {"name":"郑达礼","phone":"19229075064","email":"zdl447041439@qq.com"},
+    {"name":"梁涛","phone":"15629187703","email":"291684655@qq.com"},
+    {"name":"李本良","phone":"17886724972","email":"416422056@qq.com"},
+    {"name":"罗本元","phone":"13511643311","email":"5752030@qq.com"},
+    {"name":"王刚","phone":"14755990919","email":"1014304743@qq.com"},
+    {"name":"韦唯","phone":"13517888548","email":"wei4567896767@qq.com"},
+    {"name":"高钰","phone":"18773131113","email":"gaoyu_288288@qq.com"},
+    {"name":"王双凤","phone":"19945071370","email":"573398429@qq.com"},
+    {"name":"倪晓丽","phone":"13615198777","email":"58381979@qq.com"},
+    {"name":"康梅菊","phone":"18021466030","email":"18021466030@163.com"},
+    {"name":"戴腾芳","phone":"13524588605","email":"527797149@qq.com"},
+    {"name":"大胡子","phone":"13776578186","email":"190299259@qq.com"},
+    {"name":"孙献东","phone":"19901568118","email":"1219473255@qq.com"},
+    {"name":"王小平","phone":"15375533986","email":"gaoyu_288288@qq.com"},
+    {"name":"刘俊强","phone":"13335157124","email":"1402487082@qq.com"},
+    {"name":"秦志平","phone":"13837709087","email":"3096952192@qq.com"},
+    {"name":"陈亮","phone":"17303939310","email":"longjiu430557820@qq.com"},
+    {"name":"刘海峰","phone":"13294191319","email":"2587128707@qq.com"},
+    {"name":"潘军英","phone":"18858102686","email":"547068540@qq.com"},
+    {"name":"洪涛","phone":"19161708978","email":"21132660@qq.com"},
+    {"name":"庞晓红","phone":"13908055913","email":"5766039@qq.com"},
+    {"name":"孙桂超","phone":"19901558251","email":"454820610@qq.com"},
+    {"name":"张纯清","phone":"13923731463","email":"253853687@qq.com"},
+    {"name":"涂广翠","phone":"18994858456","email":"15052565153@163.com"},
+    {"name":"陈洪江","phone":"13587388738","email":"231867178@qq.com"},
+    {"name":"王国城","phone":"18837786671","email":"2847049154@qq.com"},
+    {"name":"高方银","phone":"13639092143","email":"970025220@qq.com"},
+    {"name":"韦凌","phone":"18482213353","email":"437631149@qq.com"},
+    {"name":"郭彩云","phone":"15953286949","email":"793047005@qq.com"},
+    {"name":"陈建飞","phone":"18874630098","email":"273237642@qq.com"},
+    {"name":"田华平","phone":"18862641354","email":"18862641354@163.com"},
+    {"name":"赵荣莉","phone":"13797060598","email":"1018839590@qq.com"},
+    {"name":"杨刚","phone":"19186723719","email":"443627321@qq.com"},
+    {"name":"黄梓琦","phone":"13570252570","email":"874401965@qq.com"},
+    {"name":"张华春","phone":"13901047604","email":"1176952540@qq.com"},
+    {"name":"毛新娣","phone":"18667939852","email":"466235719@qq.com"},
+    {"name":"陈帅君","phone":"18684722267","email":"14072267@qq.com"},
+    {"name":"王小平","phone":"15274958298","email":"gaoyu_288288@qq.com"},
+    {"name":"雷雅勤","phone":"13734912805","email":"992997218@qq.com"},
+    {"name":"杨森","phone":"18031151444","email":"664091516@qq.com"},
+    {"name":"徐乃华","phone":"13655273653","email":"13655273653@163.com"},
+    {"name":"王沙","phone":"18670386877","email":"51015603@qq.com"},
+    {"name":"周良萍","phone":"13364067968","email":"13364067968@163.com"},
+    {"name":"王海军","phone":"13187399713","email":"xu120516@163.com"},
+    {"name":"靳晋东","phone":"18539838625","email":"m18539838625@163.com"},
+    {"name":"黄海军","phone":"13321995633","email":"253163354@qq.com"},
+    {"name":"田建","phone":"13633425196","email":"2313513789@qq.com"},
+    {"name":"张丽珍","phone":"18038049247","email":"810352184@qq.com"},
+    {"name":"曾东华","phone":"15869871189","email":"3531171465@qq.com"},
+    {"name":"吴倩仪","phone":"18923260077","email":"18923260077@163.com"},
+    {"name":"蒲秀义","phone":"18385254691","email":"453602622@qq.com"},
+    {"name":"李旭东","phone":"13051390800","email":"donghan899@qq.com"},
+    {"name":"周洪元","phone":"13888509221","email":"1748472677@qq.com"},
+    {"name":"崔文利","phone":"18610632333","email":"18610632333@163.com"},
+    {"name":"姜占东","phone":"15312116200","email":"1306159401@qq.com"},
+    {"name":"王路","phone":"18115201666","email":"657065133@qq.com"},
+    {"name":"褚杰","phone":"18752677937","email":"527797149@qq.com"},
+    {"name":"徐肖玫","phone":"13615711684","email":"110208108@qq.com"},
+    {"name":"毛群","phone":"13912344734","email":"601122156@qq.com"},
+    {"name":"王珏","phone":"15356186155","email":"13750833002@163.com"},
+    {"name":"黄红英","phone":"18750437027","email":"1153424290@qq.com"},
+    {"name":"孟祥权","phone":"17370238126","email":"1922166057@qq.com"},
+    {"name":"陈谢平","phone":"18162768687","email":"271740990@qq.com"},
+    {"name":"魏文","phone":"17343236596","email":"295634753@qq.com"},
+    {"name":"陈胜前","phone":"15116143191","email":"aa277080231@163.com"},
+    {"name":"李祥明","phone":"13928453619","email":"1849728362@qq.com"},
+    {"name":"兰雨","phone":"17830048194","email":"2082318765@qq.com"},
+    {"name":"徐小英","phone":"13732241186","email":"442614645@qq.com"},
+    {"name":"徐冬英","phone":"13588412028","email":"1473916107@qq.com"},
+    {"name":"林玉英","phone":"13692279860","email":"yu3008@163.com"},
+    {"name":"袁爱","phone":"13365895788","email":"1223021087@qq.com"},
+    {"name":"肖前辉","phone":"13193146687","email":"187311606@qq.com"},
+    {"name":"陈红齐","phone":"17264223413","email":"c17264223413@qq.com"},
+    {"name":"吴兆勃","phone":"18994858998","email":"1607577335@qq.com"},
+    {"name":"李荣慧","phone":"13662017649","email":"609173593@qq.com"},
+    {"name":"童敏强","phone":"15058514813","email":"1309140043@qq.com"},
+    {"name":"朱家辉","phone":"16624687813","email":"710126327@qq.com"},
+    {"name":"何超","phone":"15874154177","email":"hechaoroom@163.com"},
+    {"name":"涂渝","phone":"15879214271","email":"1098671558@qq.com"},
+    {"name":"张联云","phone":"15213158761","email":"1051531265@qq.com"},
+    {"name":"王孟晓","phone":"17698085560","email":"1552727586@qq.com"},
+    {"name":"杨季军","phone":"18014135503","email":"1821807708@qq.com"},
+    {"name":"张德容","phone":"18623190391","email":"zhang-rong2008@163.com"},
+    {"name":"王祥","phone":"18352573257","email":"1103477382@qq.com"},
+    {"name":"周建华","phone":"15926992399","email":"584089580@qq.com"},
+    {"name":"王新加","phone":"15950717587","email":"23268380@qq.com"},
+    {"name":"连磊","phone":"13142688281","email":"2183567663@qq.com"},
+    {"name":"万雨亭","phone":"13113872717","email":"353779507@qq.com"},
+    {"name":"王琪","phone":"13162928886","email":"3836690845@qq.com"},
+    {"name":"吴八一","phone":"17675762687","email":"1011323846@qq.com"},
+    {"name":"李广伟","phone":"13986090306","email":"2901302620@qq.com"},
+    {"name":"何建党","phone":"19149231413","email":"545438581@qq.com"},
+    {"name":"周桂学","phone":"15223028066","email":"750315295@qq.com"},
+    {"name":"代丽","phone":"15271510949","email":"1519480084@qq.com"},
+    {"name":"朱惠平","phone":"13875874948","email":"1307706986@qq.com"},
+    {"name":"王浩","phone":"18765266201","email":"1360693673@qq.com"},
+    {"name":"许秀兰","phone":"18120811386","email":"msldud@163.com"},
+    {"name":"蔡春龙","phone":"18961465982","email":"601122156@qq.com"},
+    {"name":"古鑫渝","phone":"15086800983","email":"43389089@qq.com"},
+    {"name":"李舒宇","phone":"13782135205","email":"2847049154@qq.com"},
+    {"name":"张立波","phone":"18522948331","email":"81522014@qq.com"},
+    {"name":"张朝林","phone":"15135755489","email":"3531598455@qq.com"},
+    {"name":"袁琴","phone":"13399812820","email":"1429006869@qq.com"},
+    {"name":"韦虹","phone":"18908252616","email":"2973829057@qq.com"},
+    {"name":"罗丹","phone":"15061201916","email":"a15061201916@163.com"},
+    {"name":"刘毅","phone":"13662231219","email":"77450139@qq.com"},
+    {"name":"刘金田","phone":"13397419157","email":"912878848@qq.com"},
+    {"name":"庞杰","phone":"15358270999","email":"18901411913@163.com"},
+    {"name":"高梅","phone":"13122436826","email":"gaomei00@163.com"},
+    {"name":"张义武","phone":"18948275432","email":"15217997709@163.com"},
+    {"name":"卿云","phone":"17769453821","email":"3531171465@qq.com"},
+    {"name":"陈少锋","phone":"15395591333","email":"178643243@qq.com"}
+];
+
+// ========== 加密函数 ==========
+function simpleEncode(str) {
+    return btoa(unescape(encodeURIComponent(str)));
+}
+
+function simpleDecode(encoded) {
+    try {
+        return decodeURIComponent(escape(atob(encoded)));
+    } catch(e) {
+        return null;
+    }
+}
+
+function hashPassword(pwd) {
+    let hash = 0;
+    for (let i = 0; i < pwd.length; i++) {
+        const char = pwd.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash;
+    }
+    return 'h' + Math.abs(hash).toString(16);
+}
+
+// ========== 存储管理 ==========
+const STORAGE_KEYS = {
+    ATTENDEES: 'gw_conference_attendees',
+    ADMIN: 'gw_conference_admin',
+    LOGS: 'gw_conference_logs',
+    SETTINGS: 'gw_conference_settings',
+    SESSION: 'gw_conference_session'
+};
+
+function saveToStorage(key, data) {
+    localStorage.setItem(key, JSON.stringify(data));
+}
+
+function loadFromStorage(key) {
+    const data = localStorage.getItem(key);
+    return data ? JSON.parse(data) : null;
+}
+
+function initData() {
+    const stored = loadFromStorage(STORAGE_KEYS.ATTENDEES);
+    if (stored && stored.length > 0) {
+        attendees = stored;
+    } else {
+        // 使用原始189人数据
+        attendees = originalData.map((p, i) => ({
+            id: i + 1,
+            name: p.name,
+            phone: p.phone,
+            email: p.email,
+            status: 'active',
+            auditStatus: 'approved',
+            remark: '',
+            createdAt: new Date().toISOString()
+        }));
+        saveToStorage(STORAGE_KEYS.ATTENDEES, attendees);
+    }
+    
+    // 初始化管理员账户
+    const admin = loadFromStorage(STORAGE_KEYS.ADMIN);
+    if (!admin) {
+        const defaultAdmin = {
+            username: 'admin',
+            password: hashPassword('admin888'),
+            createdAt: new Date().toISOString()
+        };
+        saveToStorage(STORAGE_KEYS.ADMIN, defaultAdmin);
+    }
+    
+    // 初始化设置
+    const settings = loadFromStorage(STORAGE_KEYS.SETTINGS);
+    if (!settings) {
+        const defaultSettings = {
+            name: '国文汇通暨生态上线新闻发布会',
+            time: '2025年5月',
+            location: '深圳',
+            title: '参会资格查询',
+            footer: '如有疑问请联系工作人员'
+        };
+        saveToStorage(STORAGE_KEYS.SETTINGS, defaultSettings);
+        document.getElementById('configName').value = defaultSettings.name;
+        document.getElementById('configTime').value = defaultSettings.time;
+        document.getElementById('configLocation').value = defaultSettings.location;
+        document.getElementById('configTitle').value = defaultSettings.title;
+        document.getElementById('configFooter').value = defaultSettings.footer;
+    } else {
+        document.getElementById('configName').value = settings.name || '';
+        document.getElementById('configTime').value = settings.time || '';
+        document.getElementById('configLocation').value = settings.location || '';
+        document.getElementById('configTitle').value = settings.title || '';
+        document.getElementById('configFooter').value = settings.footer || '';
+    }
+    
+    // 检查Session
+    checkSession();
+}
+
+// ========== Session管理 ==========
+function checkSession() {
+    const session = loadFromStorage(STORAGE_KEYS.SESSION);
+    if (session && session.loggedIn) {
+        showApp();
+    }
+}
+
+function createSession(username) {
+    const session = {
+        loggedIn: true,
+        username: username,
+        loginTime: new Date().toISOString()
+    };
+    saveToStorage(STORAGE_KEYS.SESSION, session);
+}
+
+function clearSession() {
+    localStorage.removeItem(STORAGE_KEYS.SESSION);
+}
+
+// ========== 认证 ==========
+function authenticate(username, password) {
+    const admin = loadFromStorage(STORAGE_KEYS.ADMIN);
+    if (admin && admin.username === username && admin.password === hashPassword(password)) {
+        return true;
+    }
+    return false;
+}
+
+// ========== 日志 ==========
+function addLog(action, details = '') {
+    let logs = loadFromStorage(STORAGE_KEYS.LOGS) || [];
+    const session = loadFromStorage(STORAGE_KEYS.SESSION);
+    const log = {
+        id: Date.now(),
+        time: new Date().toLocaleString('zh-CN'),
+        action: action,
+        details: details,
+        user: session ? session.username : 'unknown'
+    };
+    logs.unshift(log);
+    if (logs.length > 500) logs = logs.slice(0, 500);
+    saveToStorage(STORAGE_KEYS.LOGS, logs);
+    renderLogs();
+}
+
+function renderLogs() {
+    const logs = loadFromStorage(STORAGE_KEYS.LOGS) || [];
+    const logList = document.getElementById('logList');
+    
+    if (logs.length === 0) {
+        logList.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📋</div><h3>暂无日志</h3></div>';
+        return;
+    }
+    
+    logList.innerHTML = logs.slice(0, 100).map(log => `
+        <div class="log-item">
+            <span class="log-time">${log.time}</span>
+            <span class="log-action">${log.action}</span>
+            <span class="log-user">@${log.user}</span>
+        </div>
+    `).join('');
+}
+
+function clearLogs() {
+    showConfirm('清空日志', '确定要清空所有操作日志吗？', () => {
+        saveToStorage(STORAGE_KEYS.LOGS, []);
+        renderLogs();
+        showToast('日志已清空', 'success');
+    });
+}
+
+// ========== Toast通知 ==========
+function showToast(message, type = 'info') {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    
+    const icons = { success: '✓', error: '✗', warning: '⚠', info: 'ℹ' };
+    toast.innerHTML = `
+        <span class="toast-icon">${icons[type]}</span>
+        <span class="toast-message">${message}</span>
+    `;
+    
+    container.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.classList.add('hiding');
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+// ========== 模态框 ==========
+function openModal(id) {
+    document.getElementById(id).classList.add('active');
+}
+
+function closeModal(id) {
+    document.getElementById(id).classList.remove('active');
+}
+
+let confirmId = null;
+function showConfirm(title, message, callback) {
+    document.getElementById('confirmTitle').textContent = title;
+    document.getElementById('confirmMessage').textContent = message;
+    confirmCallback = callback;
+    openModal('confirmModal');
+}
+
+function doConfirm() {
+    if (confirmCallback) {
+        confirmCallback();
+        confirmCallback = null;
+    }
+    closeModal('confirmModal');
+}
+
+// ========== 登录/登出 ==========
+document.getElementById('loginForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const username = document.getElementById('loginUsername').value;
+    const password = document.getElementById('loginPassword').value;
+    
+    if (authenticate(username, password)) {
+        createSession(username);
+        addLog('用户登录', `账号: ${username}`);
+        showApp();
+        showToast('登录成功', 'success');
+    } else {
+        document.getElementById('loginError').classList.add('show');
+        setTimeout(() => {
+            document.getElementById('loginError').classList.remove('show');
+        }, 3000);
+    }
+});
+
+document.getElementById('logoutBtn').addEventListener('click', function() {
+    addLog('用户登出', '');
+    clearSession();
+    document.getElementById('loginContainer').classList.remove('hidden');
+    document.getElementById('appContainer').classList.remove('active');
+    document.getElementById('loginUsername').value = '';
+    document.getElementById('loginPassword').value = '';
+});
+
+function showApp() {
+    document.getElementById('loginContainer').classList.add('hidden');
+    document.getElementById('appContainer').classList.add('active');
+    initData();
+    updateStats();
+    renderTable();
+}
+
+// ========== 页面导航 ==========
+document.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('click', function() {
+        const page = this.dataset.page;
+        if (page) showPage(page);
+    });
+});
+
+function showPage(page) {
+    // 更新导航状态
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.toggle('active', item.dataset.page === page);
+    });
+    
+    // 显示对应页面
+    document.querySelectorAll('.page-section').forEach(section => {
+        section.classList.toggle('active', section.id === page + 'Page');
+    });
+    
+    // 更新标题
+    const titles = {
+        dashboard: '数据概览',
+        attendees: '人员管理',
+        'import-export': '导入导出',
+        logs: '操作日志',
+        settings: '系统设置',
+        password: '修改密码'
+    };
+    document.getElementById('pageTitle').textContent = titles[page] || page;
+    
+    // 渲染日志
+    if (page === 'logs') renderLogs();
+    
+    // 关闭侧边栏（移动端）
+    document.getElementById('sidebar').classList.remove('open');
+}
+
+document.getElementById('menuToggle').addEventListener('click', function() {
+    document.getElementById('sidebar').classList.toggle('open');
+});
+
+// ========== 统计 ==========
+function updateStats() {
+    const total = attendees.length;
+    const approved = attendees.filter(a => a.auditStatus === 'approved').length;
+    const pending = attendees.filter(a => a.auditStatus === 'pending').length;
+    const uniquePhones = new Set(attendees.map(a => a.phone)).size;
+    
+    document.getElementById('totalCount').textContent = total;
+    document.getElementById('approvedCount').textContent = approved;
+    document.getElementById('statTotal').textContent = total;
+    document.getElementById('statApproved').textContent = approved;
+    document.getElementById('statPending').textContent = pending;
+    document.getElementById('statUniquePhones').textContent = uniquePhones;
+}
+
+// ========== 表格渲染 ==========
+function filterAttendees() {
+    const query = document.getElementById('searchInput').value.toLowerCase().trim();
+    
+    if (!query) {
+        filteredAttendees = [...attendees];
+    } else {
+        filteredAttendees = attendees.filter(a => 
+            a.name.toLowerCase().includes(query) ||
+            a.phone.includes(query) ||
+            a.email.toLowerCase().includes(query)
+        );
+    }
+    
+    currentPage = 1;
+    renderTable();
+}
+
+document.getElementById('searchInput').addEventListener('input', filterAttendees);
+document.getElementById('searchInput').addEventListener('keyup', function(e) {
+    if (e.key === 'Enter') filterAttendees();
+});
+
+document.getElementById('pageSizeSelect').addEventListener('change', function() {
+    pageSize = parseInt(this.value);
+    document.getElementById('pageSizeSelectBottom').value = pageSize;
+    currentPage = 1;
+    renderTable();
+});
+
+document.getElementById('pageSizeSelectBottom').addEventListener('change', function() {
+    pageSize = parseInt(this.value);
+    document.getElementById('pageSizeSelect').value = pageSize;
+    currentPage = 1;
+    renderTable();
+});
+
+function renderTable() {
+    const tbody = document.getElementById('attendeeTableBody');
+    const emptyState = document.getElementById('emptyState');
+    
+    const totalPages = Math.ceil(filteredAttendees.length / pageSize) || 1;
+    if (currentPage > totalPages) currentPage = totalPages;
+    
+    const start = (currentPage - 1) * pageSize;
+    const end = start + pageSize;
+    const pageData = filteredAttendees.slice(start, end);
+    
+    if (filteredAttendees.length === 0) {
+        tbody.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        document.querySelector('.data-table-wrapper').classList.add('hidden');
+    } else {
+        emptyState.classList.add('hidden');
+        document.querySelector('.data-table-wrapper').classList.remove('hidden');
+        
+        tbody.innerHTML = pageData.map((person, index) => {
+            const globalIndex = start + index + 1;
+            const isSelected = selectedIds.has(person.id);
+            
+            return `
+                <tr>
+                    <td class="checkbox-cell">
+                        <input type="checkbox" class="custom-checkbox" 
+                            ${isSelected ? 'checked' : ''} 
+                            onchange="toggleSelect(${person.id})">
+                    </td>
+                    <td>${globalIndex}</td>
+                    <td>${person.name}</td>
+                    <td>${person.phone}</td>
+                    <td>${person.email}</td>
+                    <td>
+                        <span class="status-badge ${person.status === 'active' ? 'status-approved' : 'status-rejected'}">
+                            ${person.status === 'active' ? '✓ 启用' : '✗ 禁用'}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="status-badge status-${person.auditStatus}">
+                            ${person.auditStatus === 'approved' ? '✓ 已通过' : 
+                              person.auditStatus === 'pending' ? '⏳ 待审核' : '✗ 已拒绝'}
+                        </span>
+                    </td>
+                    <td>${person.remark || '-'}</td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="action-btn view" onclick="viewPerson(${person.id})" title="查看">👁</button>
+                            <button class="action-btn edit" onclick="editPerson(${person.id})" title="编辑">✏</button>
+                            <button class="action-btn delete" onclick="deletePerson(${person.id})" title="删除">🗑</button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+    
+    // 更新分页
+    renderPagination();
+    updateBatchActions();
+}
+
+function renderPagination() {
+    const totalPages = Math.ceil(filteredAttendees.length / pageSize) || 1;
+    
+    // 更新信息
+    const start = filteredAttendees.length > 0 ? (currentPage - 1) * pageSize + 1 : 0;
+    const end = Math.min(currentPage * pageSize, filteredAttendees.length);
+    document.getElementById('paginationInfo').textContent = 
+        `显示 ${start}-${end} 条，共 ${filteredAttendees.length} 条`;
+    
+    // 更新按钮状态
+    document.getElementById('prevPage').disabled = currentPage <= 1;
+    document.getElementById('nextPage').disabled = currentPage >= totalPages;
+    
+    // 生成页码
+    const pageNumbers = document.getElementById('pageNumbers');
+    let pages = [];
+    
+    if (totalPages <= 7) {
+        for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else {
+        if (currentPage <= 4) {
+            pages = [1, 2, 3, 4, 5, '...', totalPages];
+        } else if (currentPage >= totalPages - 3) {
+            pages = [1, '...', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+        } else {
+            pages = [1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages];
+        }
+    }
+    
+    pageNumbers.innerHTML = pages.map(p => 
+        p === '...' ? 
+            `<span style="padding: 0 8px; color: var(--text-muted);">...</span>` :
+            `<button class="pagination-btn ${p === currentPage ? 'active' : ''}" onclick="goToPage(${p})">${p}</button>`
+    ).join('');
+}
+
+function goToPage(page) {
+    currentPage = page;
+    renderTable();
+}
+
+function prevPage() {
+    if (currentPage > 1) {
+        currentPage--;
+        renderTable();
+    }
+}
+
+function nextPage() {
+    const totalPages = Math.ceil(filteredAttendees.length / pageSize) || 1;
+    if (currentPage < totalPages) {
+        currentPage++;
+        renderTable();
+    }
+}
+
+// ========== 选择操作 ==========
+function toggleSelectAll() {
+    const checked = document.getElementById('selectAll').checked;
+    if (checked) {
+        filteredAttendees.forEach(a => selectedIds.add(a.id));
+    } else {
+        selectedIds.clear();
+    }
+    renderTable();
+}
+
+function toggleSelect(id) {
+    if (selectedIds.has(id)) {
+        selectedIds.delete(id);
+    } else {
+        selectedIds.add(id);
+    }
+    updateSelectAll();
+    updateBatchActions();
+}
+
+function updateSelectAll() {
+    const allSelected = filteredAttendees.length > 0 && 
+                        filteredAttendees.every(a => selectedIds.has(a.id));
+    document.getElementById('selectAll').checked = allSelected;
+    document.getElementById('selectAll').indeterminate = 
+        selectedIds.size > 0 && !allSelected;
+}
+
+function updateBatchActions() {
+    const batchActions = document.getElementById('batchActions');
+    const selectedCount = document.getElementById('selectedCount');
+    
+    if (selectedIds.size > 0) {
+        batchActions.classList.add('show');
+        selectedCount.textContent = selectedIds.size;
+    } else {
+        batchActions.classList.remove('show');
+    }
+}
+
+function clearSelection() {
+    selectedIds.clear();
+    updateSelectAll();
+    updateBatchActions();
+    renderTable();
+}
+
+function batchApprove() {
+    if (selectedIds.size === 0) return;
+    
+    attendees.forEach(a => {
+        if (selectedIds.has(a.id)) {
+            a.auditStatus = 'approved';
+        }
+    });
+    
+    saveToStorage(STORAGE_KEYS.ATTENDEES, attendees);
+    addLog('批量审核', `通过了 ${selectedIds.size} 条记录`);
+    clearSelection();
+    updateStats();
+    renderTable();
+    showToast(`已通过 ${selectedIds.size} 条记录`, 'success');
+}
+
+function batchDelete() {
+    if (selectedIds.size === 0) return;
+    
+    showConfirm('批量删除', `确定要删除选中的 ${selectedIds.size} 条记录吗？`, () => {
+        attendees = attendees.filter(a => !selectedIds.has(a.id));
+        saveToStorage(STORAGE_KEYS.ATTENDEES, attendees);
+        addLog('批量删除', `删除了 ${selectedIds.size} 条记录`);
+        clearSelection();
+        updateStats();
+        renderTable();
+        showToast(`已删除 ${selectedIds.size} 条记录`, 'success');
+    });
+}
+
+// ========== 人员CRUD ==========
+function openAddModal() {
+    editId = null;
+    document.getElementById('modalTitle').textContent = '添加人员';
+    document.getElementById('personForm').reset();
+    document.getElementById('personId').value = '';
+    openModal('personModal');
+}
+
+function editPerson(id) {
+    const person = attendees.find(a => a.id === id);
+    if (!person) return;
+    
+    editId = id;
+    document.getElementById('modalTitle').textContent = '编辑人员';
+    document.getElementById('personId').value = person.id;
+    document.getElementById('personName').value = person.name;
+    document.getElementById('personPhone').value = person.phone;
+    document.getElementById('personEmail').value = person.email;
+    document.getElementById('personStatus').value = person.status;
+    document.getElementById('personAuditStatus').value = person.auditStatus;
+    document.getElementById('personRemark').value = person.remark || '';
+    
+    openModal('personModal');
+}
+
+function viewPerson(id) {
+    const person = attendees.find(a => a.id === id);
+    if (!person) return;
+    
+    document.getElementById('viewContent').innerHTML = `
+        <div style="display: grid; gap: 16px;">
+            <div class="form-group" style="margin: 0;">
+                <label class="form-label">姓名</label>
+                <div style="color: var(--text-primary); font-size: 16px; font-weight: 500;">${person.name}</div>
+            </div>
+            <div class="form-group" style="margin: 0;">
+                <label class="form-label">手机号</label>
+                <div style="color: var(--text-primary);">${person.phone}</div>
+            </div>
+            <div class="form-group" style="margin: 0;">
+                <label class="form-label">邮箱</label>
+                <div style="color: var(--text-primary);">${person.email}</div>
+            </div>
+            <div class="form-group" style="margin: 0;">
+                <label class="form-label">状态</label>
+                <span class="status-badge ${person.status === 'active' ? 'status-approved' : 'status-rejected'}">
+                    ${person.status === 'active' ? '✓ 启用' : '✗ 禁用'}
+                </span>
+            </div>
+            <div class="form-group" style="margin: 0;">
+                <label class="form-label">审核状态</label>
+                <span class="status-badge status-${person.auditStatus}">
+                    ${person.auditStatus === 'approved' ? '✓ 已通过' : 
+                      person.auditStatus === 'pending' ? '⏳ 待审核' : '✗ 已拒绝'}
+                </span>
+            </div>
+            <div class="form-group" style="margin: 0;">
+                <label class="form-label">备注</label>
+                <div style="color: var(--text-secondary);">${person.remark || '无'}</div>
+            </div>
+            <div class="form-group" style="margin: 0;">
+                <label class="form-label">创建时间</label>
+                <div style="color: var(--text-muted); font-size: 12px;">${person.createdAt ? new Date(person.createdAt).toLocaleString('zh-CN') : '-'}</div>
+            </div>
+        </div>
+    `;
+    
+    openModal('viewModal');
+}
+
+function savePerson() {
+    const name = document.getElementById('personName').value.trim();
+    const phone = document.getElementById('personPhone').value.trim();
+    const email = document.getElementById('personEmail').value.trim();
+    const status = document.getElementById('personStatus').value;
+    const auditStatus = document.getElementById('personAuditStatus').value;
+    const remark = document.getElementById('personRemark').value.trim();
+    
+    if (!name || !phone || !email) {
+        showToast('请填写必填项', 'error');
+        return;
+    }
+    
+    if (editId) {
+        // 更新
+        const index = attendees.findIndex(a => a.id === editId);
+        if (index !== -1) {
+            attendees[index] = {
+                ...attendees[index],
+                name, phone, email, status, auditStatus, remark
+            };
+            addLog('编辑人员', `编辑了 ${name} 的信息`);
+            showToast('修改成功', 'success');
+        }
+    } else {
+        // 新增
+        const newId = Math.max(0, ...attendees.map(a => a.id)) + 1;
+        attendees.push({
+            id: newId,
+            name, phone, email, status, auditStatus, remark,
+            createdAt: new Date().toISOString()
+        });
+        addLog('添加人员', `添加了新人员: ${name}`);
+        showToast('添加成功', 'success');
+    }
+    
+    saveToStorage(STORAGE_KEYS.ATTENDEES, attendees);
+    closeModal('personModal');
+    updateStats();
+    filterAttendees();
+}
+
+function deletePerson(id) {
+    const person = attendees.find(a => a.id === id);
+    if (!person) return;
+    
+    showConfirm('删除确认', `确定要删除 "${person.name}" 吗？`, () => {
+        attendees = attendees.filter(a => a.id !== id);
+        saveToStorage(STORAGE_KEYS.ATTENDEES, attendees);
+        addLog('删除人员', `删除了 ${person.name}`);
+        updateStats();
+        renderTable();
+        showToast('删除成功', 'success');
+    });
+}
+
+// ========== 导入导出 ==========
+document.getElementById('importType').addEventListener('change', function() {
+    const jsonArea = document.getElementById('jsonTextArea');
+    const fileArea = document.getElementById('fileUploadArea');
+    
+    if (this.value === 'json-text') {
+        jsonArea.classList.remove('hidden');
+        fileArea.classList.add('hidden');
+    } else {
+        jsonArea.classList.add('hidden');
+        fileArea.classList.remove('hidden');
+    }
+});
+
+document.getElementById('fileUploadArea').addEventListener('click', function() {
+    document.getElementById('fileInput').click();
+});
+
+document.getElementById('fileInput').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const content = e.target.result;
+        const importType = document.getElementById('importType').value;
+        
+        if (importType === 'csv-file') {
+            document.getElementById('jsonInput').value = csvToJson(content);
+        } else {
+            document.getElementById('jsonInput').value = content;
+        }
+        
+        showToast('文件已加载，点击"开始导入"确认', 'info');
+    };
+    reader.readAsText(file);
+});
+
+function csvToJson(csv) {
+    const lines = csv.split('\n').filter(l => l.trim());
+    if (lines.length < 2) return '[]';
+    
+    const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+    const data = [];
+    
+    for (let i = 1; i < lines.length; i++) {
+        const values = lines[i].split(',').map(v => v.trim().replace(/"/g, ''));
+        const obj = {};
+        headers.forEach((h, idx) => {
+            obj[h] = values[idx] || '';
+        });
+        data.push(obj);
+    }
+    
+    return JSON.stringify(data, null, 2);
+}
+
+function importData() {
+    const importType = document.getElementById('importType').value;
+    let jsonStr = '';
+    
+    if (importType === 'json-text') {
+        jsonStr = document.getElementById('jsonInput').value;
+    } else {
+        showToast('请先选择文件', 'warning');
+        return;
+    }
+    
+    try {
+        const data = JSON.parse(jsonStr);
+        
+        if (!Array.isArray(data)) {
+            showToast('数据格式错误：需要数组格式', 'error');
+            return;
+        }
+        
+        let added = 0;
+        let skipped = 0;
+        
+        data.forEach(item => {
+            if (item.name && item.phone && item.email) {
+                // 检查重复
+                const exists = attendees.some(a => 
+                    a.name === item.name && a.phone === item.phone
+                );
+                
+                if (!exists) {
+                    const newId = Math.max(0, ...attendees.map(a => a.id)) + 1;
+                    attendees.push({
+                        id: newId,
+                        name: item.name,
+                        phone: item.phone,
+                        email: item.email,
+                        status: item.status || 'active',
+                        auditStatus: item.auditStatus || 'approved',
+                        remark: item.remark || '',
+                        createdAt: new Date().toISOString()
+                    });
+                    added++;
+                } else {
+                    skipped++;
+                }
+            } else {
+                skipped++;
+            }
+        });
+        
+        saveToStorage(STORAGE_KEYS.ATTENDEES, attendees);
+        addLog('数据导入', `导入了 ${added} 条数据，跳过 ${skipped} 条`);
+        
+        document.getElementById('jsonInput').value = '';
+        updateStats();
+        filterAttendees();
+        showPage('attendees');
+        
+        showToast(`导入完成：新增 ${added} 条，跳过 ${skipped} 条`, added > 0 ? 'success' : 'warning');
+    } catch (e) {
+        showToast('JSON格式错误：' + e.message, 'error');
+    }
+}
+
+function clearImportData() {
+    showConfirm('清空数据', '确定要清空所有人员数据吗？此操作不可撤销！', () => {
+        attendees = [];
+        saveToStorage(STORAGE_KEYS.ATTENDEES, attendees);
+        addLog('清空数据', '清空了所有人员数据');
+        updateStats();
+        renderTable();
+        showToast('数据已清空', 'success');
+    });
+}
+
+function exportJSON() {
+    const data = attendees.map(a => ({
+        name: a.name,
+        phone: a.phone,
+        email: a.email
+    }));
+    
+    downloadFile(
+        JSON.stringify(data, null, 2),
+        'attendees_export.json',
+        'application/json'
+    );
+    
+    addLog('导出数据', '导出了JSON格式数据');
+    showToast('JSON导出成功', 'success');
+}
+
+function exportCSV() {
+    const headers = ['姓名', '手机号', '邮箱'];
+    const rows = attendees.map(a => [a.name, a.phone, a.email]);
+    
+    let csv = '\uFEFF'; // BOM for Excel
+    csv += headers.join(',') + '\n';
+    rows.forEach(row => {
+        csv += row.map(v => `"${v}"`).join(',') + '\n';
+    });
+    
+    downloadFile(csv, 'attendees_export.csv', 'text/csv;charset=utf-8');
+    
+    addLog('导出数据', '导出了CSV格式数据');
+    showToast('CSV导出成功', 'success');
+}
+
+function exportBackup() {
+    const backup = {
+        version: '1.0',
+        exportTime: new Date().toISOString(),
+        attendees: attendees,
+        settings: loadFromStorage(STORAGE_KEYS.SETTINGS)
+    };
+    
+    downloadFile(
+        JSON.stringify(backup, null, 2),
+        'attendees_backup.json',
+        'application/json'
+    );
+    
+    addLog('数据备份', '创建了完整数据备份');
+    showToast('备份导出成功', 'success');
+}
+
+function downloadFile(content, filename, type) {
+    const blob = new Blob([content], { type });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+function confirmClearAll() {
+    showConfirm('危险操作', '确定要清空所有数据吗？此操作不可撤销！', () => {
+        attendees = [];
+        saveToStorage(STORAGE_KEYS.ATTENDEES, attendees);
+        addLog('清空所有数据', '执行了清空所有数据操作');
+        updateStats();
+        renderTable();
+        showToast('所有数据已清空', 'success');
+    });
+}
+
+// ========== 设置 ==========
+function saveSettings() {
+    const settings = {
+        name: document.getElementById('configName').value,
+        time: document.getElementById('configTime').value,
+        location: document.getElementById('configLocation').value,
+        title: document.getElementById('configTitle').value,
+        footer: document.getElementById('configFooter').value
+    };
+    
+    saveToStorage(STORAGE_KEYS.SETTINGS, settings);
+    addLog('保存设置', '更新了系统配置');
+    showToast('设置已保存', 'success');
+}
+
+// ========== 修改密码 ==========
+document.getElementById('passwordForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const currentPwd = document.getElementById('currentPassword').value;
+    const newPwd = document.getElementById('newPassword').value;
+    const confirmPwd = document.getElementById('confirmPassword').value;
+    
+    if (newPwd !== confirmPwd) {
+        showToast('两次输入的密码不一致', 'error');
+        return;
+    }
+    
+    if (newPwd.length < 6) {
+        showToast('新密码长度至少6位', 'error');
+        return;
+    }
+    
+    const admin = loadFromStorage(STORAGE_KEYS.ADMIN);
+    if (admin.password !== hashPassword(currentPwd)) {
+        showToast('当前密码错误', 'error');
+        return;
+    }
+    
+    admin.password = hashPassword(newPwd);
+    saveToStorage(STORAGE_KEYS.ADMIN, admin);
+    
+    addLog('修改密码', '修改了管理员密码');
+    
+    document.getElementById('passwordForm').reset();
+    showToast('密码修改成功', 'success');
+});
+
+// ========== 初始化 ==========
+document.addEventListener('DOMContentLoaded', function() {
+    // 初始化数据但不自动登录
+});
+</script>
+</body>
+</html>
